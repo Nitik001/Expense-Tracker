@@ -1,0 +1,178 @@
+/* ── Login Page ── */
+.login-page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg, #0f0f1a);
+  position: relative;
+  overflow: hidden;
+  padding: 1.5rem;
+}
+
+/* Ambient blobs */
+.login-bg-blur {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.25;
+  pointer-events: none;
+}
+.login-blur-1 {
+  width: 400px; height: 400px;
+  background: #7c3aed;
+  top: -100px; left: -100px;
+}
+.login-blur-2 {
+  width: 300px; height: 300px;
+  background: #06b6d4;
+  bottom: -80px; right: -80px;
+}
+
+/* Card */
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Branding */
+.login-brand {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.login-logo {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+}
+.login-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text, #ffffff);
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.5px;
+}
+.login-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted, rgba(255,255,255,0.5));
+  line-height: 1.5;
+}
+
+/* Google button */
+.btn-google {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0.85rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.07);
+  color: var(--text, #fff);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.btn-google:hover:not(:disabled) {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.25);
+  transform: translateY(-1px);
+}
+.btn-google:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Divider */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 1.5rem 0;
+}
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+}
+.login-divider span {
+  font-size: 0.75rem;
+  color: var(--text-muted, rgba(255,255,255,0.4));
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Form */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Error */
+.login-error {
+  font-size: 0.82rem;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 10px;
+  padding: 0.6rem 0.85rem;
+  margin: 0;
+}
+
+/* Switch mode */
+.login-switch {
+  text-align: center;
+  margin-top: 1.25rem;
+  font-size: 0.85rem;
+  color: var(--text-muted, rgba(255,255,255,0.5));
+}
+.login-switch button {
+  background: none;
+  border: none;
+  color: #a78bfa;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+}
+.login-switch button:hover { color: #c4b5fd; }
+
+/* Light theme overrides */
+[data-theme="light"] .login-page { background: #f4f4f8; }
+[data-theme="light"] .login-card {
+  background: rgba(255,255,255,0.85);
+  border-color: rgba(0,0,0,0.07);
+}
+[data-theme="light"] .login-title { color: #1a1a2e; }
+[data-theme="light"] .login-subtitle { color: rgba(0,0,0,0.5); }
+[data-theme="light"] .btn-google {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.1);
+  color: #1a1a2e;
+}
+[data-theme="light"] .login-switch { color: rgba(0,0,0,0.5); }
+[data-theme="light"] .login-divider span { color: rgba(0,0,0,0.4); }
+[data-theme="light"] .login-divider::before,
+[data-theme="light"] .login-divider::after { background: rgba(0,0,0,0.1); }
+[data-theme="light"] .login-blur-1 { opacity: 0.12; }
+[data-theme="light"] .login-blur-2 { opacity: 0.10; }

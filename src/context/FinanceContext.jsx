@@ -1,24 +1,43 @@
 import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
+import {
+  collection, doc, onSnapshot,
+  addDoc, updateDoc, deleteDoc, setDoc, writeBatch
+} from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuth } from './AuthContext';
 
 const FinanceContext = createContext();
 
 export const useFinance = () => useContext(FinanceContext);
 
+// Helper: load from localStorage safely (for one-time migration)
+const loadFromStorage = (key, fallback) => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored !== null ? JSON.parse(stored) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
 export const FinanceProvider = ({ children }) => {
+  const { user } = useAuth();
+
   const [transactions, setTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [goals, setGoals] = useState([]);
   const [upcomingItems, setUpcomingItems] = useState([]);
 
-  const [currency, setCurrency] = useState('INR');
-  const [theme, setTheme] = useState('light'); // 'light' | 'dark'
+  const [currency, setCurrencyState] = useState('INR');
+  const [theme, setThemeState] = useState('light');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
+  const [firestoreLoading, setFirestoreLoading] = useState(false);
 
-  // Month tracker state — tracks which month is selected for filtering
+  // Month tracker state
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
-    return { year: now.getFullYear(), month: now.getMonth() }; // 0-indexed month
+    return { year: now.getFullYear(), month: now.getMonth() };
   });
 
   // Apply theme to document root
@@ -26,7 +45,105 @@ export const FinanceProvider = ({ children }) => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+  // ── Firestore real-time listeners ──
+  useEffect(() => {
+    if (!user) {
+      // Clear state on sign-out
+      setTransactions([]);
+      setBudgets([]);
+      setGoals([]);
+      setUpcomingItems([]);
+      return;
+    }
+
+    setFirestoreLoading(true);
+
+    const uid = user.uid;
+    const userRef = (sub) => collection(db, 'users', uid, sub);
+
+    // One-time migration: push any localStorage data to Firestore
+    const migrateLocalData = async () => {
+      const migrationKey = `finance_migrated_${uid}`;
+      if (localStorage.getItem(migrationKey)) return;
+
+      const localTxs = loadFromStorage('finance_transactions', []);
+      const localBudgets = loadFromStorage('finance_budgets', []);
+      const localGoals = loadFromStorage('finance_goals', []);
+      const localUpcoming = loadFromStorage('finance_upcoming', []);
+      const localCurrency = loadFromStorage('finance_currency', 'INR');
+      const localTheme = loadFromStorage('finance_theme', 'light');
+
+      if (localTxs.length || localBudgets.length || localGoals.length || localUpcoming.length) {
+        const batch = writeBatch(db);
+        localTxs.forEach(tx => {
+          const { id, ...data } = tx;
+          batch.set(doc(userRef('transactions')), data);
+        });
+        localBudgets.forEach(b => {
+          const { id, ...data } = b;
+          batch.set(doc(userRef('budgets')), data);
+        });
+        localGoals.forEach(g => {
+          const { id, ...data } = g;
+          batch.set(doc(userRef('goals')), data);
+        });
+        localUpcoming.forEach(u => {
+          const { id, ...data } = u;
+          batch.set(doc(userRef('upcoming')), data);
+        });
+        await batch.commit();
+
+        // Save settings
+        await setDoc(doc(db, 'users', uid, 'settings', 'prefs'), {
+          currency: localCurrency,
+          theme: localTheme,
+        });
+
+        // Clear localStorage after migration
+        ['finance_transactions','finance_budgets','finance_goals',
+         'finance_upcoming','finance_currency','finance_theme'].forEach(k => localStorage.removeItem(k));
+      }
+      localStorage.setItem(migrationKey, '1');
+    };
+
+    // Load settings
+    const unsubSettings = onSnapshot(
+      doc(db, 'users', uid, 'settings', 'prefs'),
+      (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.currency) setCurrencyState(data.currency);
+          if (data.theme) setThemeState(data.theme);
+        }
+      }
+    );
+
+    // Subscribe to collections
+    const unsubTx = onSnapshot(userRef('transactions'), snap => {
+      setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setFirestoreLoading(false);
+    });
+    const unsubBudgets = onSnapshot(userRef('budgets'), snap =>
+      setBudgets(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    );
+    const unsubGoals = onSnapshot(userRef('goals'), snap =>
+      setGoals(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    );
+    const unsubUpcoming = onSnapshot(userRef('upcoming'), snap =>
+      setUpcomingItems(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    );
+
+    // Run migration after subscriptions are set up
+    migrateLocalData().catch(console.error);
+
+    return () => {
+      unsubSettings();
+      unsubTx();
+      unsubBudgets();
+      unsubGoals();
+      unsubUpcoming();
+    };
+  }, [user]);
 
   // Navigate months
   const goToPrevMonth = () => {
@@ -35,7 +152,6 @@ export const FinanceProvider = ({ children }) => {
       return { year: d.getFullYear(), month: d.getMonth() };
     });
   };
-
   const goToNextMonth = () => {
     setSelectedMonth(prev => {
       const d = new Date(prev.year, prev.month + 1);
@@ -45,12 +161,11 @@ export const FinanceProvider = ({ children }) => {
 
   const selectedMonthLabel = useMemo(() => {
     return new Date(selectedMonth.year, selectedMonth.month).toLocaleDateString('en-US', {
-      month: 'long',
-      year: 'numeric'
+      month: 'long', year: 'numeric'
     });
   }, [selectedMonth]);
 
-  // Transactions filtered to selected month
+  // Filtered transactions for selected month
   const filteredTransactions = useMemo(() => {
     return transactions.filter(tx => {
       const d = new Date(tx.date);
@@ -58,40 +173,88 @@ export const FinanceProvider = ({ children }) => {
     });
   }, [transactions, selectedMonth]);
 
-  // Transaction CRUD
-  const addTransaction = (transaction) => {
-    setTransactions(prev => [...prev, { ...transaction, id: Date.now() }]);
+  // ── Settings helpers ──
+  const saveSettings = async (updates) => {
+    if (!user) return;
+    await setDoc(doc(db, 'users', user.uid, 'settings', 'prefs'), updates, { merge: true });
   };
 
-  const updateTransaction = (id, updatedTx) => {
-    setTransactions(prev => prev.map(tx => tx.id === id ? { ...updatedTx, id } : tx));
+  const setCurrency = async (val) => {
+    setCurrencyState(val);
+    await saveSettings({ currency: val });
   };
 
-  const deleteTransaction = (id) => {
-    setTransactions(prev => prev.filter(tx => tx.id !== id));
+  const toggleTheme = async () => {
+    const next = theme === 'light' ? 'dark' : 'light';
+    setThemeState(next);
+    await saveSettings({ theme: next });
   };
 
-  // Budget CRUD
-  const addBudget = (budget) => setBudgets(prev => [...prev, { ...budget, id: `b${Date.now()}` }]);
-  const updateBudget = (id, updated) => setBudgets(prev => prev.map(b => b.id === id ? { ...updated, id } : b));
-  const deleteBudget = (id) => setBudgets(prev => prev.filter(b => b.id !== id));
-
-  // Goal CRUD
-  const addGoal = (goal) => setGoals(prev => [...prev, { ...goal, id: `g${Date.now()}` }]);
-  const updateGoal = (id, updated) => setGoals(prev => prev.map(g => g.id === id ? { ...updated, id } : g));
-  const deleteGoal = (id) => setGoals(prev => prev.filter(g => g.id !== id));
-
-  const clearAllData = () => {
-    setTransactions([]);
-    setBudgets([]);
-    setGoals([]);
-    setUpcomingItems([]);
+  // ── Transaction CRUD ──
+  const addTransaction = async (transaction) => {
+    if (!user) return;
+    await addDoc(collection(db, 'users', user.uid, 'transactions'), transaction);
+  };
+  const updateTransaction = async (id, updatedTx) => {
+    if (!user) return;
+    await updateDoc(doc(db, 'users', user.uid, 'transactions', id), updatedTx);
+  };
+  const deleteTransaction = async (id) => {
+    if (!user) return;
+    await deleteDoc(doc(db, 'users', user.uid, 'transactions', id));
   };
 
-  // Upcoming income CRUD
-  const addUpcoming = (item) => setUpcomingItems(prev => [...prev, { ...item, id: `u${Date.now()}`, received: false }]);
-  const markUpcomingReceived = (id) => setUpcomingItems(prev => prev.map(i => i.id === id ? { ...i, received: true } : i));
-  const deleteUpcoming = (id) => setUpcomingItems(prev => prev.filter(i => i.id !== id));
+  // ── Budget CRUD ──
+  const addBudget = async (budget) => {
+    if (!user) return;
+    await addDoc(collection(db, 'users', user.uid, 'budgets'), budget);
+  };
+  const updateBudget = async (id, updated) => {
+    if (!user) return;
+    await updateDoc(doc(db, 'users', user.uid, 'budgets', id), updated);
+  };
+  const deleteBudget = async (id) => {
+    if (!user) return;
+    await deleteDoc(doc(db, 'users', user.uid, 'budgets', id));
+  };
+
+  // ── Goal CRUD ──
+  const addGoal = async (goal) => {
+    if (!user) return;
+    await addDoc(collection(db, 'users', user.uid, 'goals'), goal);
+  };
+  const updateGoal = async (id, updated) => {
+    if (!user) return;
+    await updateDoc(doc(db, 'users', user.uid, 'goals', id), updated);
+  };
+  const deleteGoal = async (id) => {
+    if (!user) return;
+    await deleteDoc(doc(db, 'users', user.uid, 'goals', id));
+  };
+
+  // ── Upcoming CRUD ──
+  const addUpcoming = async (item) => {
+    if (!user) return;
+    await addDoc(collection(db, 'users', user.uid, 'upcoming'), { ...item, received: false });
+  };
+  const markUpcomingReceived = async (id) => {
+    if (!user) return;
+    await updateDoc(doc(db, 'users', user.uid, 'upcoming', id), { received: true });
+  };
+  const deleteUpcoming = async (id) => {
+    if (!user) return;
+    await deleteDoc(doc(db, 'users', user.uid, 'upcoming', id));
+  };
+
+  const clearAllData = async () => {
+    if (!user) return;
+    const batch = writeBatch(db);
+    [...transactions].forEach(tx => batch.delete(doc(db, 'users', user.uid, 'transactions', tx.id)));
+    [...budgets].forEach(b => batch.delete(doc(db, 'users', user.uid, 'budgets', b.id)));
+    [...goals].forEach(g => batch.delete(doc(db, 'users', user.uid, 'goals', g.id)));
+    [...upcomingItems].forEach(u => batch.delete(doc(db, 'users', user.uid, 'upcoming', u.id)));
+    await batch.commit();
+  };
 
   const openModal = (transaction = null) => {
     setEditingTransaction(transaction);
@@ -107,15 +270,15 @@ export const FinanceProvider = ({ children }) => {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(amount);
   };
 
   return (
     <FinanceContext.Provider value={{
       // Data
-      transactions, filteredTransactions, budgets, goals,
-      upcomingItems,
+      transactions, filteredTransactions, budgets, goals, upcomingItems,
+      firestoreLoading,
       // Month navigation
       selectedMonth, selectedMonthLabel, goToPrevMonth, goToNextMonth,
       // CRUD
@@ -129,7 +292,7 @@ export const FinanceProvider = ({ children }) => {
       theme, toggleTheme,
       formatAmount,
       // Modal
-      isModalOpen, openModal, closeModal, editingTransaction
+      isModalOpen, openModal, closeModal, editingTransaction,
     }}>
       {children}
     </FinanceContext.Provider>

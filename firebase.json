@@ -1,0 +1,16 @@
+{
+  "auth": {
+    "providers": {
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Finance Tracker",
+        "supportEmail": "email.nitik@gmail.com",
+        "authorizedDomains": ["localhost"]
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

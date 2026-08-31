@@ -1,10 +1,18 @@
 import React from 'react';
-import { ChevronLeft, Moon, Sun, IndianRupee, Database, ChevronRight, AlertTriangle, Palette } from 'lucide-react';
+import { ChevronLeft, Moon, Sun, IndianRupee, Database, ChevronRight, AlertTriangle, Palette, LogOut, User } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
+import { useAuth } from '../context/AuthContext';
 import './Settings.css';
 
 const Settings = () => {
   const { currency, setCurrency, clearAllData, theme, toggleTheme } = useFinance();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    if (window.confirm('Sign out of Finance Tracker?')) {
+      await signOut();
+    }
+  };
 
   const handleClearData = () => {
     if (window.confirm('Are you sure you want to delete all transactions, budgets, and goals? This cannot be undone.')) {
@@ -18,6 +26,28 @@ const Settings = () => {
         <button className="icon-btn-simple"><ChevronLeft size={24} /></button>
         <h2 className="text-xl font-bold mr-auto ml-2">Settings</h2>
       </div>
+
+      {/* ── Account card ── */}
+      {user && (
+        <div className="settings-section mb-6">
+          <h3 className="section-label">Account</h3>
+          <div className="settings-card">
+            <div className="settings-item flex items-center gap-3">
+              {user.photoURL ? (
+                <img src={user.photoURL} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover' }} />
+              ) : (
+                <div className="setting-icon" style={{ backgroundColor: 'rgba(124,58,237,0.15)', color: '#7c3aed' }}>
+                  <User size={20} />
+                </div>
+              )}
+              <div>
+                <span className="font-semibold">{user.displayName || 'User'}</span>
+                <p className="text-xs text-muted">{user.email}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Preferences ── */}
       <div className="settings-section">
@@ -104,6 +134,23 @@ const Settings = () => {
               </div>
             </div>
             <AlertTriangle size={20} color="var(--color-danger)" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Sign Out ── */}
+      <div className="settings-section mt-6">
+        <div className="settings-card">
+          <div className="settings-item flex justify-between items-center" onClick={handleSignOut} style={{ cursor: 'pointer' }}>
+            <div className="flex items-center gap-3">
+              <div className="setting-icon" style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
+                <LogOut size={20} />
+              </div>
+              <div>
+                <span className="font-semibold" style={{ color: 'var(--color-danger)' }}>Sign Out</span>
+                <p className="text-xs text-muted">You can sign back in anytime</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
