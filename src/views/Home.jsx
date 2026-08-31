@@ -1,30 +1,49 @@
 import React from 'react';
-import { Bell, ChevronDown, TrendingUp, TrendingDown, Coffee, CreditCard, Sparkles, ChevronRight, Briefcase, Plus } from 'lucide-react';
+import { Bell, ChevronDown, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Coffee, CreditCard, Sparkles, Briefcase, Plus } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
 import './Home.css';
 
 const Home = () => {
-  const { transactions, openModal, formatAmount } = useFinance();
-  
-  const currentDate = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const {
+    filteredTransactions,
+    openModal,
+    formatAmount,
+    selectedMonthLabel,
+    goToPrevMonth,
+    goToNextMonth,
+    selectedMonth,
+  } = useFinance();
 
-  const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, curr) => acc + curr.amount, 0);
-  const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, curr) => acc + curr.amount, 0);
+  const now = new Date();
+  const isCurrentMonth =
+    selectedMonth.year === now.getFullYear() && selectedMonth.month === now.getMonth();
+
+  const totalIncome = filteredTransactions
+    .filter(t => t.type === 'income')
+    .reduce((acc, curr) => acc + curr.amount, 0);
+  const totalExpense = filteredTransactions
+    .filter(t => t.type === 'expense')
+    .reduce((acc, curr) => acc + curr.amount, 0);
   const currentBalance = totalIncome - totalExpense;
-  
-  // Get recent transactions, sorted by ID (descending)
-  const recentTransactions = [...transactions].sort((a, b) => b.id - a.id).slice(0, 5);
+
+  // Sorted newest-first, show up to 6
+  const recentTransactions = [...filteredTransactions]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 6);
 
   const getIconForCategory = (category) => {
-    switch (category.toLowerCase()) {
+    switch ((category || '').toLowerCase()) {
       case 'groceries': return <CreditCard size={20} color="#9d7df2" />;
-      case 'clothing & shoes': return <Briefcase size={20} color="#3b82f6" />;
+      case 'clothing & shoes':
+      case 'clothing': return <Briefcase size={20} color="#3b82f6" />;
       case 'dining':
       case 'cafes': return <Coffee size={20} color="#22c55e" />;
-      case 'salary': return <TrendingUp size={20} color="#ff7f50" />;
+      case 'salary':
+      case 'income': return <TrendingUp size={20} color="#ff7f50" />;
       default: return <Plus size={20} color="#9d7df2" />;
     }
   };
+
   return (
     <div className="home-view animate-slide-up">
       <div className="home-header">
@@ -33,10 +52,23 @@ const Home = () => {
             <img src="https://i.pravatar.cc/150?img=11" alt="User" />
             <div className="notification-badge"></div>
           </div>
-          
-          <div className="glass-pill date-selector">
-            <span className="text-sm font-medium">{currentDate}</span>
-            <ChevronDown size={16} />
+
+          {/* ── Month Navigator ── */}
+          <div className="month-nav flex items-center gap-2">
+            <button className="month-nav-btn" onClick={goToPrevMonth}>
+              <ChevronLeft size={16} color="rgba(255,255,255,0.8)" />
+            </button>
+            <span className="text-sm font-medium" style={{ color: 'white', minWidth: '130px', textAlign: 'center' }}>
+              {selectedMonthLabel}
+            </span>
+            <button
+              className="month-nav-btn"
+              onClick={goToNextMonth}
+              disabled={isCurrentMonth}
+              style={{ opacity: isCurrentMonth ? 0.3 : 1 }}
+            >
+              <ChevronRight size={16} color="rgba(255,255,255,0.8)" />
+            </button>
           </div>
 
           <div className="icon-btn header-icon">
@@ -46,9 +78,17 @@ const Home = () => {
         </div>
 
         <div className="balance-section flex flex-col items-center gap-2">
-          <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Current Balance</span>
-          <h1 className="text-4xl font-bold" style={{ color: 'white' }}>{formatAmount(currentBalance)}</h1>
-          <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.9)' }}></span>
+          <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            {isCurrentMonth ? 'Current Balance' : `Balance — ${selectedMonthLabel}`}
+          </span>
+          <h1 className="text-4xl font-bold" style={{ color: 'white' }}>
+            {formatAmount(currentBalance)}
+          </h1>
+          <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+            {filteredTransactions.length === 0
+              ? 'No transactions this month'
+              : `${filteredTransactions.length} transaction${filteredTransactions.length > 1 ? 's' : ''}`}
+          </span>
         </div>
       </div>
 
@@ -88,42 +128,52 @@ const Home = () => {
         <div className="section-title flex justify-between items-center mt-4">
           <h2 className="text-lg font-semibold">Transactions</h2>
           <div className="flex items-center gap-3">
-             <span className="text-sm text-muted">For the Period</span>
+            <span className="text-sm text-muted">For the Period</span>
           </div>
         </div>
-        
+
         <div className="flex justify-between items-center mb-2">
-            <span className="text-xs text-muted">Recent</span>
-            <span className="text-xs text-muted">Total <span className="font-bold text-text">{formatAmount(totalIncome + totalExpense)}</span></span>
+          <span className="text-xs text-muted">Recent</span>
+          <span className="text-xs text-muted">
+            Total <span className="font-bold text-text">{formatAmount(totalIncome + totalExpense)}</span>
+          </span>
         </div>
 
         <div className="transaction-list flex flex-col gap-3">
-          {recentTransactions.map(tx => (
-            <div 
-              key={tx.id} 
-              className="transaction-item"
-              onClick={() => openModal(tx)}
-              style={{cursor: 'pointer'}}
-            >
-              <div className="transaction-icon flex items-center justify-center bg-surface shadow-sm rounded-lg" style={{width: '40px', height: '40px'}}>
-                {getIconForCategory(tx.category)}
-              </div>
-              <div className="transaction-details">
-                <h4 className="font-semibold">{tx.category}</h4>
-                <span className="text-xs text-muted flex items-center gap-1">
-                   <div style={{width:'8px', height:'8px', backgroundColor: tx.type === 'expense' ? '#ef4444' : '#22c55e', borderRadius:'2px'}}></div> {tx.account}
-                </span>
-              </div>
-              <div className="transaction-amounts text-right">
-                <h4 className={`font-semibold ${tx.type === 'expense' ? 'text-danger' : 'text-success'}`}>
-                  {tx.type === 'expense' ? '-' : '+'}{formatAmount(tx.amount)}
-                </h4>
-                <span className="text-xs text-muted">{tx.date}</span>
-              </div>
+          {recentTransactions.length === 0 ? (
+            <div className="empty-state flex flex-col items-center justify-center gap-2 py-8">
+              <span style={{ fontSize: '2.5rem' }}>📭</span>
+              <span className="text-sm text-muted">No transactions in {selectedMonthLabel}</span>
+              <span className="text-xs text-muted">Tap + to add one</span>
             </div>
-          ))}
+          ) : (
+            recentTransactions.map(tx => (
+              <div
+                key={tx.id}
+                className="transaction-item"
+                onClick={() => openModal(tx)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="transaction-icon flex items-center justify-center bg-surface shadow-sm rounded-lg" style={{ width: '40px', height: '40px' }}>
+                  {getIconForCategory(tx.category)}
+                </div>
+                <div className="transaction-details">
+                  <h4 className="font-semibold">{tx.category}</h4>
+                  <span className="text-xs text-muted flex items-center gap-1">
+                    <div style={{ width: '8px', height: '8px', backgroundColor: tx.type === 'expense' ? '#ef4444' : '#22c55e', borderRadius: '2px' }}></div>
+                    {tx.account}
+                  </span>
+                </div>
+                <div className="transaction-amounts text-right">
+                  <h4 className={`font-semibold ${tx.type === 'expense' ? 'text-danger' : 'text-success'}`}>
+                    {tx.type === 'expense' ? '-' : '+'}{formatAmount(tx.amount)}
+                  </h4>
+                  <span className="text-xs text-muted">{tx.date}</span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
-
       </div>
     </div>
   );

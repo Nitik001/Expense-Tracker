@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronDown, BarChart2, PieChart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BarChart2, PieChart } from 'lucide-react';
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { useFinance } from '../context/FinanceContext';
 import './Report.css';
@@ -8,11 +8,22 @@ const COLORS = ['#9d7df2', '#3b82f6', '#22c55e', '#ff7f50', '#e5e7eb', '#f59e0b'
 
 const Report = () => {
   const [activeTab, setActiveTab] = useState('Expenses');
-  const { transactions, formatAmount } = useFinance();
-  const currentDate = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const {
+    filteredTransactions,
+    formatAmount,
+    selectedMonthLabel,
+    goToPrevMonth,
+    goToNextMonth,
+    selectedMonth,
+  } = useFinance();
+
+  const now = new Date();
+  const isCurrentMonth =
+    selectedMonth.year === now.getFullYear() && selectedMonth.month === now.getMonth();
 
   const chartData = useMemo(() => {
-    const filteredTx = transactions.filter(t => t.type === activeTab.toLowerCase());
+    const type = activeTab === 'Expenses' ? 'expense' : 'income';
+    const filteredTx = filteredTransactions.filter(t => t.type === type);
     const categoryTotals = filteredTx.reduce((acc, tx) => {
       acc[tx.category] = (acc[tx.category] || 0) + tx.amount;
       return acc;
@@ -24,11 +35,11 @@ const Report = () => {
       .map(([name, value], index) => ({
         name,
         value,
-        percentage: ((value / total) * 100).toFixed(1),
+        percentage: total > 0 ? ((value / total) * 100).toFixed(1) : '0.0',
         color: COLORS[index % COLORS.length]
       }))
       .sort((a, b) => b.value - a.value);
-  }, [transactions, activeTab]);
+  }, [filteredTransactions, activeTab]);
 
   const totalAmount = chartData.reduce((sum, item) => sum + item.value, 0);
 
@@ -37,21 +48,35 @@ const Report = () => {
       <div className="page-header flex justify-between items-center">
         <button className="icon-btn-simple"><ChevronLeft size={24} /></button>
         <h2 className="text-xl font-bold">Report</h2>
-        <div className="date-pill">
-          <span className="text-sm font-medium">{currentDate}</span>
-          <ChevronDown size={16} />
+
+        {/* Month navigator */}
+        <div className="flex items-center gap-2">
+          <button className="icon-btn-simple" onClick={goToPrevMonth}>
+            <ChevronLeft size={18} />
+          </button>
+          <span className="text-sm font-medium" style={{ minWidth: '110px', textAlign: 'center' }}>
+            {selectedMonthLabel}
+          </span>
+          <button
+            className="icon-btn-simple"
+            onClick={goToNextMonth}
+            disabled={isCurrentMonth}
+            style={{ opacity: isCurrentMonth ? 0.3 : 1 }}
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
       </div>
 
       <div className="tab-toggle-container">
         <div className="tab-toggle">
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'Expenses' ? 'active' : ''}`}
             onClick={() => setActiveTab('Expenses')}
           >
             Expenses
           </button>
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'Income' ? 'active' : ''}`}
             onClick={() => setActiveTab('Income')}
           >
@@ -62,7 +87,7 @@ const Report = () => {
 
       <div className="report-content">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold text-lg">Expenses Report</h3>
+          <h3 className="font-semibold text-lg">{activeTab} Report</h3>
           <div className="flex gap-2">
             <div className="chart-toggle-btn"><BarChart2 size={16} color="var(--color-text-muted)" /></div>
             <div className="chart-toggle-btn active"><PieChart size={16} color="white" /></div>
@@ -71,29 +96,37 @@ const Report = () => {
 
         <div className="chart-container">
           <div className="chart-inner">
-            <ResponsiveContainer width="100%" height="100%">
-              <RechartsPie>
-                <Pie
-                  data={chartData}
-                  innerRadius="70%"
-                  outerRadius="100%"
-                  paddingAngle={5}
-                  dataKey="value"
-                  stroke="none"
-                  cornerRadius={10}
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-              </RechartsPie>
-            </ResponsiveContainer>
-            <div className="chart-center-text">
-              <span className="text-sm text-muted">Total {activeTab}</span>
-              <h2 className="text-2xl font-bold">{formatAmount(totalAmount)}</h2>
-            </div>
-            {/* Tooltip mockup */}
-            <div className="chart-tooltip">{chartData.length > 0 ? chartData[0].percentage + '%' : '0%'}</div>
+            {chartData.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-2" style={{ height: '100%' }}>
+                <span style={{ fontSize: '2.5rem' }}>📊</span>
+                <span className="text-sm text-muted">No {activeTab.toLowerCase()} in {selectedMonthLabel}</span>
+              </div>
+            ) : (
+              <>
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartsPie>
+                    <Pie
+                      data={chartData}
+                      innerRadius="70%"
+                      outerRadius="100%"
+                      paddingAngle={5}
+                      dataKey="value"
+                      stroke="none"
+                      cornerRadius={10}
+                    >
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </RechartsPie>
+                </ResponsiveContainer>
+                <div className="chart-center-text">
+                  <span className="text-sm text-muted">Total {activeTab}</span>
+                  <h2 className="text-2xl font-bold">{formatAmount(totalAmount)}</h2>
+                </div>
+                <div className="chart-tooltip">{chartData.length > 0 ? chartData[0].percentage + '%' : '0%'}</div>
+              </>
+            )}
           </div>
         </div>
 
@@ -107,8 +140,8 @@ const Report = () => {
             <div key={item.name} className="expense-item bg-surface rounded-md p-4 shadow-sm">
               <div className="flex justify-between items-start mb-3">
                 <div className="flex gap-3 items-center">
-                  <div className="expense-icon-small" style={{backgroundColor: `${item.color}20`}}>
-                    <div className="dot" style={{backgroundColor: item.color}}></div>
+                  <div className="expense-icon-small" style={{ backgroundColor: `${item.color}20` }}>
+                    <div className="dot" style={{ backgroundColor: item.color }}></div>
                   </div>
                   <div>
                     <h4 className="font-semibold">{item.name}</h4>
@@ -120,7 +153,7 @@ const Report = () => {
                 </div>
               </div>
               <div className="progress-bar-bg">
-                <div className="progress-bar-fill" style={{width: `${item.percentage}%`, backgroundColor: item.color}}></div>
+                <div className="progress-bar-fill" style={{ width: `${item.percentage}%`, backgroundColor: item.color }}></div>
               </div>
             </div>
           ))}

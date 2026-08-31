@@ -3,6 +3,28 @@
   height: 100%;
 }
 
+.month-nav-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,0.3);
+  transition: background 0.2s;
+}
+
+.month-nav-btn:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+
 .home-header {
   background: linear-gradient(145deg, #a78bfa 0%, #d8b4fe 100%);
   padding: 40px 20px 80px 20px;

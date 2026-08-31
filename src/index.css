@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-:root {
+:root,
+[data-theme="light"] {
   /* Colors */
   --color-primary: #9d7df2;
   --color-primary-light: #b99ff5;
@@ -8,12 +9,14 @@
   --color-secondary: #ff7f50;
   --color-background: #f7f8fa;
   --color-surface: #ffffff;
+  --color-surface-2: #f0f1f5;
   --color-text: #1a1a24;
   --color-text-muted: #8b8b9b;
   --color-success: #22c55e;
   --color-danger: #ef4444;
   --color-warning: #f59e0b;
   --color-info: #3b82f6;
+  --color-border: rgba(0,0,0,0.07);
 
   /* Chart Colors */
   --chart-color-1: #9d7df2;
@@ -36,10 +39,35 @@
   --radius-full: 9999px;
 }
 
+[data-theme="dark"] {
+  --color-primary: #a78bfa;
+  --color-primary-light: #c4b5fd;
+  --color-primary-dark: #7c3aed;
+  --color-secondary: #fb923c;
+  --color-background: #0f0f1a;
+  --color-surface: #1a1a2e;
+  --color-surface-2: #22223b;
+  --color-text: #f1f0ff;
+  --color-text-muted: #6b6b8a;
+  --color-success: #4ade80;
+  --color-danger: #f87171;
+  --color-warning: #fbbf24;
+  --color-info: #60a5fa;
+  --color-border: rgba(255,255,255,0.07);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 32px rgba(167, 139, 250, 0.15);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
@@ -53,6 +81,7 @@ body {
   align-items: center;
   min-height: 100vh;
   margin: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* App Container (Mobile Simulator) */
