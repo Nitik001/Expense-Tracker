@@ -4,7 +4,9 @@ import { useFinance } from '../context/FinanceContext';
 import './Home.css';
 
 const Home = () => {
-  const { transactions, openModal } = useFinance();
+  const { transactions, openModal, formatAmount } = useFinance();
+  
+  const currentDate = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, curr) => acc + curr.amount, 0);
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, curr) => acc + curr.amount, 0);
@@ -33,7 +35,7 @@ const Home = () => {
           </div>
           
           <div className="glass-pill date-selector">
-            <span className="text-sm font-medium">November 2025</span>
+            <span className="text-sm font-medium">{currentDate}</span>
             <ChevronDown size={16} />
           </div>
 
@@ -45,8 +47,8 @@ const Home = () => {
 
         <div className="balance-section flex flex-col items-center gap-2">
           <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Current Balance</span>
-          <h1 className="text-4xl font-bold" style={{ color: 'white' }}>${currentBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h1>
-          <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>+$784 than last week</span>
+          <h1 className="text-4xl font-bold" style={{ color: 'white' }}>{formatAmount(currentBalance)}</h1>
+          <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.9)' }}></span>
         </div>
       </div>
 
@@ -62,14 +64,14 @@ const Home = () => {
               <TrendingUp size={20} />
             </div>
             <span className="text-sm text-muted">Income <span className="info-icon">i</span></span>
-            <h3 className="text-xl font-bold">${totalIncome.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h3>
+            <h3 className="text-xl font-bold">{formatAmount(totalIncome)}</h3>
           </div>
           <div className="money-card">
             <div className="card-icon expense-icon">
               <TrendingDown size={20} />
             </div>
             <span className="text-sm text-muted">Expenses <span className="info-icon">i</span></span>
-            <h3 className="text-xl font-bold">${totalExpense.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h3>
+            <h3 className="text-xl font-bold">{formatAmount(totalExpense)}</h3>
           </div>
         </div>
 
@@ -92,7 +94,7 @@ const Home = () => {
         
         <div className="flex justify-between items-center mb-2">
             <span className="text-xs text-muted">Recent</span>
-            <span className="text-xs text-muted">Total <span className="font-bold text-text">${(totalIncome + totalExpense).toLocaleString('en-US', {maximumFractionDigits: 0})}</span></span>
+            <span className="text-xs text-muted">Total <span className="font-bold text-text">{formatAmount(totalIncome + totalExpense)}</span></span>
         </div>
 
         <div className="transaction-list flex flex-col gap-3">
@@ -114,7 +116,7 @@ const Home = () => {
               </div>
               <div className="transaction-amounts text-right">
                 <h4 className={`font-semibold ${tx.type === 'expense' ? 'text-danger' : 'text-success'}`}>
-                  {tx.type === 'expense' ? '-' : '+'}${tx.amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                  {tx.type === 'expense' ? '-' : '+'}{formatAmount(tx.amount)}
                 </h4>
                 <span className="text-xs text-muted">{tx.date}</span>
               </div>

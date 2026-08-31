@@ -4,7 +4,9 @@ import { X, Trash2 } from 'lucide-react';
 import './TransactionModal.css'; // Reusing modal styles
 
 const PlanItemModal = ({ isOpen, onClose, type, itemToEdit }) => {
-  const { addBudget, updateBudget, deleteBudget, addGoal, updateGoal, deleteGoal } = useFinance();
+  const { addBudget, updateBudget, deleteBudget, addGoal, updateGoal, deleteGoal, currency } = useFinance();
+  
+  const currencySymbol = currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$';
   
   const [name, setName] = useState('');
   const [target, setTarget] = useState('');
@@ -81,7 +83,7 @@ const PlanItemModal = ({ isOpen, onClose, type, itemToEdit }) => {
           </div>
 
           <div className="form-group">
-            <label className="text-sm font-medium text-muted">Target Amount ($)</label>
+            <label className="text-sm font-medium text-muted">Target Amount ({currencySymbol})</label>
             <input 
               type="number" 
               step="0.01"
@@ -94,7 +96,7 @@ const PlanItemModal = ({ isOpen, onClose, type, itemToEdit }) => {
           </div>
 
           <div className="form-group">
-            <label className="text-sm font-medium text-muted">Current Saved/Spent ($)</label>
+            <label className="text-sm font-medium text-muted">Current Saved/Spent ({currencySymbol})</label>
             <input 
               type="number" 
               step="0.01"

@@ -5,7 +5,7 @@ import PlanItemModal from '../components/PlanItemModal';
 import './Plan.css';
 
 const Plan = () => {
-  const { budgets, goals } = useFinance();
+  const { budgets, goals, formatAmount } = useFinance();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('goal'); // 'goal' or 'budget'
   const [itemToEdit, setItemToEdit] = useState(null);
@@ -99,7 +99,7 @@ const Plan = () => {
                 </div>
                 <div>
                   <h4 className="font-semibold">{budget.name}</h4>
-                  <span className="text-xs font-bold">${budget.current} <span className="text-muted font-normal">of ${budget.target}</span></span>
+                  <span className="text-xs font-bold">{formatAmount(budget.current)} <span className="text-muted font-normal">of {formatAmount(budget.target)}</span></span>
                 </div>
               </div>
               <div className="circular-progress" style={{'--progress': percent, '--color': budget.color}}>

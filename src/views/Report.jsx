@@ -8,7 +8,8 @@ const COLORS = ['#9d7df2', '#3b82f6', '#22c55e', '#ff7f50', '#e5e7eb', '#f59e0b'
 
 const Report = () => {
   const [activeTab, setActiveTab] = useState('Expenses');
-  const { transactions } = useFinance();
+  const { transactions, formatAmount } = useFinance();
+  const currentDate = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   const chartData = useMemo(() => {
     const filteredTx = transactions.filter(t => t.type === activeTab.toLowerCase());
@@ -37,7 +38,7 @@ const Report = () => {
         <button className="icon-btn-simple"><ChevronLeft size={24} /></button>
         <h2 className="text-xl font-bold">Report</h2>
         <div className="date-pill">
-          <span className="text-sm font-medium">November 2025</span>
+          <span className="text-sm font-medium">{currentDate}</span>
           <ChevronDown size={16} />
         </div>
       </div>
@@ -89,7 +90,7 @@ const Report = () => {
             </ResponsiveContainer>
             <div className="chart-center-text">
               <span className="text-sm text-muted">Total {activeTab}</span>
-              <h2 className="text-2xl font-bold">${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h2>
+              <h2 className="text-2xl font-bold">{formatAmount(totalAmount)}</h2>
             </div>
             {/* Tooltip mockup */}
             <div className="chart-tooltip">{chartData.length > 0 ? chartData[0].percentage + '%' : '0%'}</div>
@@ -98,7 +99,7 @@ const Report = () => {
 
         <div className="flex justify-between items-center mb-4 mt-6">
           <span className="text-sm text-muted">All {activeTab}</span>
-          <span className="text-sm text-muted">Total <span className="font-bold text-text">${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></span>
+          <span className="text-sm text-muted">Total <span className="font-bold text-text">{formatAmount(totalAmount)}</span></span>
         </div>
 
         <div className="expense-list flex flex-col gap-4">
@@ -115,7 +116,7 @@ const Report = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <h4 className="font-semibold">${item.value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h4>
+                  <h4 className="font-semibold">{formatAmount(item.value)}</h4>
                 </div>
               </div>
               <div className="progress-bar-bg">

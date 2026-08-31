@@ -4,11 +4,13 @@ import { X, Trash2 } from 'lucide-react';
 import './TransactionModal.css';
 
 const TransactionModal = () => {
-  const { isModalOpen, closeModal, addTransaction, updateTransaction, deleteTransaction, editingTransaction } = useFinance();
+  const { isModalOpen, closeModal, addTransaction, updateTransaction, deleteTransaction, editingTransaction, currency } = useFinance();
   const [type, setType] = useState('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [account, setAccount] = useState('Cash');
+
+  const currencySymbol = currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$';
 
   useEffect(() => {
     if (editingTransaction) {
@@ -82,7 +84,7 @@ const TransactionModal = () => {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="form-group">
-            <label className="text-sm font-medium text-muted">Amount ($)</label>
+            <label className="text-sm font-medium text-muted">Amount ({currencySymbol})</label>
             <input 
               type="number" 
               step="0.01"

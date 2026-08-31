@@ -5,27 +5,11 @@ const FinanceContext = createContext();
 export const useFinance = () => useContext(FinanceContext);
 
 export const FinanceProvider = ({ children }) => {
-  const [transactions, setTransactions] = useState([
-    { id: 1, type: 'expense', category: 'Groceries', amount: 8750.00, date: '2026-01-12', account: 'Cash, EUR' },
-    { id: 2, type: 'expense', category: 'Clothing & Shoes', amount: 6420.35, date: '2026-01-12', account: 'Red Card' },
-    { id: 3, type: 'expense', category: 'Dining', amount: 2500.00, date: '2026-01-10', account: 'Cafes' },
-    { id: 4, type: 'expense', category: 'Travel', amount: 1500.00, date: '2026-01-08', account: 'Vacation' },
-    { id: 5, type: 'expense', category: 'Other', amount: 920.00, date: '2026-01-05', account: 'Cash, EUR' },
-    { id: 6, type: 'income', category: 'Salary', amount: 4875.12, date: '2026-01-01', account: 'Main Account' },
-  ]);
+  const [transactions, setTransactions] = useState([]);
+  const [budgets, setBudgets] = useState([]);
+  const [goals, setGoals] = useState([]);
 
-  const [budgets, setBudgets] = useState([
-    { id: 'b1', name: 'Save for a Car', current: 2500, target: 7500, color: '#ff7f50' },
-    { id: 'b2', name: 'Save for Education', current: 500, target: 2500, color: '#9d7df2' },
-    { id: 'b3', name: 'Vacation fund', current: 750, target: 5000, color: '#3b82f6' },
-    { id: 'b4', name: 'Health Savings', current: 1200, target: 3000, color: '#22c55e' },
-  ]);
-
-  const [goals, setGoals] = useState([
-    { id: 'g1', name: 'House by the Sea', current: 1000, target: 1750, color: '#ff7f50' }
-  ]);
-
-  const [currency, setCurrency] = useState('USD');
+  const [currency, setCurrency] = useState('INR');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
 
@@ -70,9 +54,18 @@ export const FinanceProvider = ({ children }) => {
     setIsModalOpen(false);
   };
 
+  const formatAmount = (amount) => {
+    return new Intl.NumberFormat(currency === 'INR' ? 'en-IN' : 'en-US', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    }).format(amount);
+  };
+
   return (
     <FinanceContext.Provider value={{
-      transactions, budgets, goals, currency, setCurrency,
+      transactions, budgets, goals, currency, setCurrency, formatAmount,
       addTransaction, updateTransaction, deleteTransaction,
       addBudget, updateBudget, deleteBudget,
       addGoal, updateGoal, deleteGoal,

@@ -58,6 +58,7 @@ const Settings = () => {
                 onChange={(e) => setCurrency(e.target.value)}
                 className="currency-select text-sm font-bold text-primary"
               >
+                <option value="INR">INR (₹)</option>
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
                 <option value="GBP">GBP (£)</option>
