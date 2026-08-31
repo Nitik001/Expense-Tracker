@@ -92,8 +92,6 @@ const Plan = () => {
           )
         })}
       </div>
-
-      </div>
     </div>
   );
 };
