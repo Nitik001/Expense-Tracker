@@ -25,27 +25,59 @@ export const FinanceProvider = ({ children }) => {
     { id: 'g1', name: 'House by the Sea', current: 1000, target: 1750, color: '#ff7f50' }
   ]);
 
+  const [currency, setCurrency] = useState('USD');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
 
+  // Transaction CRUD
   const addTransaction = (transaction) => {
     setTransactions([
       ...transactions,
       { ...transaction, id: Date.now() }
     ]);
   };
+  
+  const updateTransaction = (id, updatedTx) => {
+    setTransactions(transactions.map(tx => tx.id === id ? { ...updatedTx, id } : tx));
+  };
+  
+  const deleteTransaction = (id) => {
+    setTransactions(transactions.filter(tx => tx.id !== id));
+  };
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  // Budget CRUD
+  const addBudget = (budget) => setBudgets([...budgets, { ...budget, id: `b${Date.now()}` }]);
+  const updateBudget = (id, updated) => setBudgets(budgets.map(b => b.id === id ? { ...updated, id } : b));
+  const deleteBudget = (id) => setBudgets(budgets.filter(b => b.id !== id));
+
+  // Goal CRUD
+  const addGoal = (goal) => setGoals([...goals, { ...goal, id: `g${Date.now()}` }]);
+  const updateGoal = (id, updated) => setGoals(goals.map(g => g.id === id ? { ...updated, id } : g));
+  const deleteGoal = (id) => setGoals(goals.filter(g => g.id !== id));
+
+  const clearAllData = () => {
+    setTransactions([]);
+    setBudgets([]);
+    setGoals([]);
+  };
+
+  const openModal = (transaction = null) => {
+    setEditingTransaction(transaction);
+    setIsModalOpen(true);
+  };
+  const closeModal = () => {
+    setEditingTransaction(null);
+    setIsModalOpen(false);
+  };
 
   return (
     <FinanceContext.Provider value={{
-      transactions,
-      budgets,
-      goals,
-      addTransaction,
-      isModalOpen,
-      openModal,
-      closeModal
+      transactions, budgets, goals, currency, setCurrency,
+      addTransaction, updateTransaction, deleteTransaction,
+      addBudget, updateBudget, deleteBudget,
+      addGoal, updateGoal, deleteGoal,
+      clearAllData,
+      isModalOpen, openModal, closeModal, editingTransaction
     }}>
       {children}
     </FinanceContext.Provider>

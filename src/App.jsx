@@ -4,6 +4,7 @@ import AppLayout from './components/AppLayout';
 import Home from './views/Home';
 import Report from './views/Report';
 import Plan from './views/Plan';
+import Settings from './views/Settings';
 import { FinanceProvider } from './context/FinanceContext';
 import './App.css';
 
@@ -16,6 +17,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="report" element={<Report />} />
             <Route path="plan" element={<Plan />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>
       </BrowserRouter>

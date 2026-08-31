@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChevronLeft, Plus, ExternalLink, MoreVertical, AlertCircle } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
+import PlanItemModal from '../components/PlanItemModal';
 import './Plan.css';
 
 const Plan = () => {
   const { budgets, goals } = useFinance();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState('goal'); // 'goal' or 'budget'
+  const [itemToEdit, setItemToEdit] = useState(null);
+
+  const handleOpenModal = (type, item = null) => {
+    setModalType(type);
+    setItemToEdit(item);
+    setModalOpen(true);
+  };
 
   return (
     <div className="plan-view animate-slide-up">
@@ -12,7 +22,7 @@ const Plan = () => {
         <button className="icon-btn-simple"><ChevronLeft size={24} /></button>
         <h2 className="text-xl font-bold mr-auto ml-2">My Plan</h2>
         <div className="flex gap-3">
-           <button className="icon-btn-solid bg-black text-white"><Plus size={18} /></button>
+           <button className="icon-btn-solid bg-black text-white" onClick={() => handleOpenModal('goal')}><Plus size={18} /></button>
            <button className="icon-btn-simple"><ExternalLink size={20} /></button>
         </div>
       </div>
@@ -36,7 +46,9 @@ const Plan = () => {
                     <span className="text-xs text-muted">View All</span>
                   </div>
               </div>
-              <button className="icon-btn-simple bg-background rounded-full p-1"><MoreVertical size={16} color="var(--color-text-muted)"/></button>
+              <button className="icon-btn-simple bg-background rounded-full p-1" onClick={() => handleOpenModal('goal', goal)}>
+                <MoreVertical size={16} color="var(--color-text-muted)"/>
+              </button>
             </div>
 
             <div className="mb-2">
@@ -68,14 +80,19 @@ const Plan = () => {
 
       <div className="section-title flex justify-between items-center mb-4">
         <h3 className="font-semibold text-lg">Budgets</h3>
-        <span className="text-sm text-muted">View All</span>
+        <button className="icon-btn-simple" onClick={() => handleOpenModal('budget')}><Plus size={16} /></button>
       </div>
 
       <div className="budget-list flex flex-col gap-4">
         {budgets.map(budget => {
           const percent = Math.min(100, Math.round((budget.current / budget.target) * 100));
           return (
-            <div key={budget.id} className="budget-item bg-surface rounded-md p-4 shadow-sm flex items-center justify-between">
+            <div 
+              key={budget.id} 
+              className="budget-item bg-surface rounded-md p-4 shadow-sm flex items-center justify-between"
+              onClick={() => handleOpenModal('budget', budget)}
+              style={{cursor: 'pointer'}}
+            >
               <div className="flex gap-3 items-center">
                 <div className="budget-icon" style={{backgroundColor: `${budget.color}20`, color: budget.color}}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="m3 8 9-5 9 5"/><path d="M12 22V8"/></svg>
@@ -92,6 +109,13 @@ const Plan = () => {
           )
         })}
       </div>
+
+      <PlanItemModal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        type={modalType} 
+        itemToEdit={itemToEdit} 
+      />
     </div>
   );
 };

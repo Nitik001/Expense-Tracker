@@ -4,7 +4,7 @@ import { useFinance } from '../context/FinanceContext';
 import './Home.css';
 
 const Home = () => {
-  const { transactions } = useFinance();
+  const { transactions, openModal } = useFinance();
 
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, curr) => acc + curr.amount, 0);
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, curr) => acc + curr.amount, 0);
@@ -97,7 +97,12 @@ const Home = () => {
 
         <div className="transaction-list flex flex-col gap-3">
           {recentTransactions.map(tx => (
-            <div key={tx.id} className="transaction-item">
+            <div 
+              key={tx.id} 
+              className="transaction-item"
+              onClick={() => openModal(tx)}
+              style={{cursor: 'pointer'}}
+            >
               <div className="transaction-icon flex items-center justify-center bg-surface shadow-sm rounded-lg" style={{width: '40px', height: '40px'}}>
                 {getIconForCategory(tx.category)}
               </div>

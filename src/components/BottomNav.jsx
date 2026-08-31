@@ -30,10 +30,10 @@ const BottomNav = () => {
         <span>Plan</span>
       </NavLink>
 
-      <div className="nav-item">
+      <NavLink to="/settings" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
         <Settings size={24} />
         <span>Settings</span>
-      </div>
+      </NavLink>
     </div>
   );
 };

@@ -1,14 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { X } from 'lucide-react';
+import { X, Trash2 } from 'lucide-react';
 import './TransactionModal.css';
 
 const TransactionModal = () => {
-  const { isModalOpen, closeModal, addTransaction } = useFinance();
+  const { isModalOpen, closeModal, addTransaction, updateTransaction, deleteTransaction, editingTransaction } = useFinance();
   const [type, setType] = useState('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [account, setAccount] = useState('Cash');
+
+  useEffect(() => {
+    if (editingTransaction) {
+      setType(editingTransaction.type);
+      setAmount(editingTransaction.amount);
+      setCategory(editingTransaction.category);
+      setAccount(editingTransaction.account);
+    } else {
+      setType('expense');
+      setAmount('');
+      setCategory('');
+      setAccount('Cash');
+    }
+  }, [editingTransaction, isModalOpen]);
 
   if (!isModalOpen) return null;
 
@@ -17,24 +31,35 @@ const TransactionModal = () => {
     e.preventDefault();
     if (!amount || !category) return;
 
-    addTransaction({
+    const txData = {
       type,
       amount: parseFloat(amount),
       category,
       account,
-      date: new Date().toISOString().split('T')[0]
-    });
+      date: editingTransaction ? editingTransaction.date : new Date().toISOString().split('T')[0]
+    };
+
+    if (editingTransaction) {
+      updateTransaction(editingTransaction.id, txData);
+    } else {
+      addTransaction(txData);
+    }
     
-    setAmount('');
-    setCategory('');
     closeModal();
+  };
+
+  const handleDelete = () => {
+    if (editingTransaction) {
+      deleteTransaction(editingTransaction.id);
+      closeModal();
+    }
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content animate-slide-up">
         <div className="modal-header flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Add Transaction</h2>
+          <h2 className="text-xl font-bold">{editingTransaction ? 'Edit Transaction' : 'Add Transaction'}</h2>
           <button className="icon-btn-simple" onClick={closeModal}><X size={24} /></button>
         </div>
 
@@ -94,7 +119,16 @@ const TransactionModal = () => {
             </select>
           </div>
 
-          <button type="submit" className="btn-primary mt-4">Save Transaction</button>
+          <div className="flex gap-3 mt-4">
+            {editingTransaction && (
+               <button type="button" onClick={handleDelete} className="btn-secondary" style={{backgroundColor: '#fee2e2', color: '#ef4444'}}>
+                 <Trash2 size={20} />
+               </button>
+            )}
+            <button type="submit" className="btn-primary flex-1">
+              {editingTransaction ? 'Save Changes' : 'Save Transaction'}
+            </button>
+          </div>
         </form>
       </div>
     </div>
