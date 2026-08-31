@@ -20,7 +20,7 @@ const BottomNav = () => {
       </NavLink>
 
       <div className="nav-fab-container">
-        <button className="fab-button" onClick={openModal}>
+        <button className="fab-button" onClick={() => openModal()}>
           <Plus size={24} color="#fff" />
         </button>
       </div>
