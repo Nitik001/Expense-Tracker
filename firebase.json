@@ -5,7 +5,12 @@
       "googleSignIn": {
         "oAuthBrandDisplayName": "Finance Tracker",
         "supportEmail": "email.nitik@gmail.com",
-        "authorizedDomains": ["localhost"]
+        "authorizedDomains": [
+          "localhost",
+          "finance-tracker-nitik.firebaseapp.com",
+          "finance-tracker-nitik.web.app",
+          "192.168.31.112"
+        ]
       }
     }
   },
