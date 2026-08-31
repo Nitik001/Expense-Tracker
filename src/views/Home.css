@@ -154,12 +154,16 @@
   color: #ef4444;
 }
 
-.insight-banner {
-  background-color: #1a1a24;
+.upcoming-banner {
+  background: linear-gradient(135deg, #7c3aed, #9d7df2);
   border-radius: var(--radius-lg);
   padding: 16px 20px;
   margin-bottom: 24px;
+  cursor: pointer;
+  transition: opacity 0.2s;
 }
+
+.upcoming-banner:hover { opacity: 0.92; }
 
 .transaction-list {
   padding-bottom: 20px;
@@ -172,7 +176,34 @@
   padding: 16px;
   border-radius: var(--radius-md);
   box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  gap: 12px;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
+
+.transaction-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.transaction-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.transaction-amounts {
+  flex-shrink: 0;
+}
+
+.tx-mini-tag {
+  font-size: 11px;
+  background: rgba(157, 125, 242, 0.12);
+  color: var(--color-primary);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 
 .transaction-details {
   flex: 1;

@@ -8,6 +8,7 @@ export const FinanceProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [goals, setGoals] = useState([]);
+  const [upcomingItems, setUpcomingItems] = useState([]);
 
   const [currency, setCurrency] = useState('INR');
   const [theme, setTheme] = useState('light'); // 'light' | 'dark'
@@ -84,7 +85,13 @@ export const FinanceProvider = ({ children }) => {
     setTransactions([]);
     setBudgets([]);
     setGoals([]);
+    setUpcomingItems([]);
   };
+
+  // Upcoming income CRUD
+  const addUpcoming = (item) => setUpcomingItems(prev => [...prev, { ...item, id: `u${Date.now()}`, received: false }]);
+  const markUpcomingReceived = (id) => setUpcomingItems(prev => prev.map(i => i.id === id ? { ...i, received: true } : i));
+  const deleteUpcoming = (id) => setUpcomingItems(prev => prev.filter(i => i.id !== id));
 
   const openModal = (transaction = null) => {
     setEditingTransaction(transaction);
@@ -108,12 +115,14 @@ export const FinanceProvider = ({ children }) => {
     <FinanceContext.Provider value={{
       // Data
       transactions, filteredTransactions, budgets, goals,
+      upcomingItems,
       // Month navigation
       selectedMonth, selectedMonthLabel, goToPrevMonth, goToNextMonth,
       // CRUD
       addTransaction, updateTransaction, deleteTransaction,
       addBudget, updateBudget, deleteBudget,
       addGoal, updateGoal, deleteGoal,
+      addUpcoming, markUpcomingReceived, deleteUpcoming,
       clearAllData,
       // Settings
       currency, setCurrency,

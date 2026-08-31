@@ -1,6 +1,7 @@
-import React from 'react';
-import { Bell, ChevronDown, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Coffee, CreditCard, Sparkles, Briefcase, Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { Bell, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Coffee, CreditCard, Sparkles, Briefcase, Plus, Clock } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
+import UpcomingSheet from '../components/UpcomingSheet';
 import './Home.css';
 
 const Home = () => {
@@ -12,7 +13,12 @@ const Home = () => {
     goToPrevMonth,
     goToNextMonth,
     selectedMonth,
+    upcomingItems,
   } = useFinance();
+
+  const [upcomingOpen, setUpcomingOpen] = useState(false);
+
+  const pendingCount = upcomingItems.filter(i => !i.received).length;
 
   const now = new Date();
   const isCurrentMonth =
@@ -115,13 +121,16 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="insight-banner flex justify-between items-center">
+        {/* Upcoming income banner */}
+        <div className="upcoming-banner flex justify-between items-center" onClick={() => setUpcomingOpen(true)}>
           <div className="flex items-center gap-2">
-            <Sparkles size={16} color="#A88BEB" />
-            <span className="text-sm font-medium" style={{ color: 'white' }}>Your insight is ready</span>
+            <Clock size={16} color="#f59e0b" />
+            <span className="text-sm font-medium" style={{ color: 'white' }}>
+              {pendingCount > 0 ? `${pendingCount} upcoming payment${pendingCount > 1 ? 's' : ''}` : 'Track upcoming income'}
+            </span>
           </div>
           <span className="text-sm font-medium flex items-center" style={{ color: 'rgba(255,255,255,0.7)' }}>
-            Get Pro <ChevronRight size={16} />
+            View <ChevronRight size={16} />
           </span>
         </div>
 
@@ -159,10 +168,20 @@ const Home = () => {
                 </div>
                 <div className="transaction-details">
                   <h4 className="font-semibold">{tx.category}</h4>
-                  <span className="text-xs text-muted flex items-center gap-1">
-                    <div style={{ width: '8px', height: '8px', backgroundColor: tx.type === 'expense' ? '#ef4444' : '#22c55e', borderRadius: '2px' }}></div>
-                    {tx.account}
-                  </span>
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {tx.tag && (
+                      <span className="tx-mini-tag">{tx.tag}</span>
+                    )}
+                    {tx.note && (
+                      <span className="text-xs text-muted" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }}>· {tx.note}</span>
+                    )}
+                    {!tx.tag && !tx.note && (
+                      <span className="text-xs text-muted flex items-center gap-1">
+                        <div style={{ width: '8px', height: '8px', backgroundColor: tx.type === 'expense' ? '#ef4444' : '#22c55e', borderRadius: '2px' }}></div>
+                        {tx.account}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="transaction-amounts text-right">
                   <h4 className={`font-semibold ${tx.type === 'expense' ? 'text-danger' : 'text-success'}`}>
@@ -175,6 +194,8 @@ const Home = () => {
           )}
         </div>
       </div>
+
+      <UpcomingSheet isOpen={upcomingOpen} onClose={() => setUpcomingOpen(false)} />
     </div>
   );
 };
