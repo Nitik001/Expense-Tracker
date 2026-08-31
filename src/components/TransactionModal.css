@@ -1,0 +1,59 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: var(--color-background);
+  width: 100%;
+  max-width: 414px;
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  padding: 30px 20px 40px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-input {
+  background-color: var(--color-surface);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: var(--color-primary);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+  color: white;
+  padding: 16px;
+  border-radius: var(--radius-full);
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 8px 16px rgba(157, 125, 242, 0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}

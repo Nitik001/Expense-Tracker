@@ -1,0 +1,135 @@
+.plan-view {
+  padding: 40px 20px 20px 20px;
+}
+
+.icon-btn-solid {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.goal-card {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.goal-icon {
+  width: 36px;
+  height: 36px;
+  background-color: rgba(255, 127, 80, 0.1);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inner-dot {
+  width: 12px;
+  height: 12px;
+  border: 3px solid #ff7f50;
+  border-radius: var(--radius-full);
+}
+
+.goal-progress-container {
+  position: relative;
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.goal-progress-bar {
+  width: 100%;
+  height: 12px;
+  background-color: #fce4dd;
+  border-radius: var(--radius-full);
+  position: relative;
+  overflow: visible;
+}
+
+.goal-progress-fill {
+  width: 30%;
+  height: 100%;
+  background-color: #ff7f50;
+  border-radius: var(--radius-full);
+  position: relative;
+}
+
+.progress-thumb {
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border: 4px solid #ff7f50;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 2;
+}
+
+.goal-progress-overlay {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 12px;
+  width: 70%;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 127, 80, 0.2),
+    rgba(255, 127, 80, 0.2) 2px,
+    transparent 2px,
+    transparent 6px
+  );
+  border-top-right-radius: var(--radius-full);
+  border-bottom-right-radius: var(--radius-full);
+  pointer-events: none;
+}
+
+.alert-box {
+  background-color: #ff7f50;
+  color: white;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.budget-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circular-progress {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(var(--color) calc(var(--progress) * 1%), #f3f4f6 0deg);
+  position: relative;
+}
+
+.circular-progress::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.circular-progress span {
+  position: relative;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color);
+}
