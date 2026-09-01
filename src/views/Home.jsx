@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Bell, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Coffee, CreditCard, Sparkles, Briefcase, Plus, Clock, Trash2 } from 'lucide-react';
-import CountUp from 'react-countup';
+import CountUpPkg from 'react-countup';
+const CountUp = typeof CountUpPkg === 'function' ? CountUpPkg : CountUpPkg.default;
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFinance } from '../context/FinanceContext';
 import { useAuth } from '../context/AuthContext';

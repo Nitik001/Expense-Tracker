@@ -54,11 +54,15 @@ const AppRoutes = () => {
   );
 };
 
+import ErrorBoundary from './ErrorBoundary';
+
 function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
