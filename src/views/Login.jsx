@@ -19,6 +19,7 @@ const Login = () => {
     try {
       await signInWithGoogle();
     } catch (err) {
+      console.error('Google Sign-In Error:', err);
       setError(getFriendlyError(err.code));
     } finally {
       setLoading(false);
@@ -51,7 +52,8 @@ const Login = () => {
       case 'auth/invalid-email': return 'Please enter a valid email address.';
       case 'auth/popup-closed-by-user': return 'Sign-in popup was closed. Please try again.';
       case 'auth/invalid-credential': return 'Incorrect email or password. Please try again.';
-      default: return 'Something went wrong. Please try again.';
+      case 'auth/unauthorized-domain': return `Please add ${window.location.hostname} to Authorized Domains in Firebase Console.`;
+      default: return `Error: ${code}. Please try again.`;
     }
   };
 
