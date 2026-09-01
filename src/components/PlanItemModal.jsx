@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useFinance } from '../context/FinanceContext';
 import { X, Trash2 } from 'lucide-react';
 import './TransactionModal.css'; // Reusing modal styles
@@ -59,7 +60,7 @@ const PlanItemModal = ({ isOpen, onClose, type, itemToEdit }) => {
     }
   };
 
-  return (
+  return createPortal(
     <div className="modal-overlay">
       <div className="modal-content animate-slide-up">
         <div className="modal-header flex justify-between items-center mb-4">
@@ -132,7 +133,8 @@ const PlanItemModal = ({ isOpen, onClose, type, itemToEdit }) => {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

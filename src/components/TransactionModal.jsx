@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useFinance } from '../context/FinanceContext';
 import { X, Trash2, Tag, FileText } from 'lucide-react';
 import './TransactionModal.css';
@@ -74,7 +75,7 @@ const TransactionModal = () => {
     }
   };
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && closeModal()}>
       <div className="modal-content animate-slide-up">
         {/* Header */}
@@ -181,7 +182,8 @@ const TransactionModal = () => {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
