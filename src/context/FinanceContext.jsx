@@ -34,6 +34,7 @@ export const FinanceProvider = ({ children }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [firestoreLoading, setFirestoreLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
 
   // Month tracker state
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -184,6 +185,14 @@ export const FinanceProvider = ({ children }) => {
     });
   }, [transactions, selectedMonth]);
 
+  const totalIncome = useMemo(() => {
+    return filteredTransactions.filter(tx => tx.type === 'income').reduce((sum, tx) => sum + tx.amount, 0);
+  }, [filteredTransactions]);
+
+  const totalExpense = useMemo(() => {
+    return filteredTransactions.filter(tx => tx.type === 'expense').reduce((sum, tx) => sum + tx.amount, 0);
+  }, [filteredTransactions]);
+
   // ── Settings helpers ──
   const saveSettings = async (updates) => {
     if (!user) return;
@@ -212,7 +221,25 @@ export const FinanceProvider = ({ children }) => {
   };
   const deleteTransaction = async (id) => {
     if (!user) return;
+    const txToDelete = transactions.find(t => t.id === id);
+    if (!txToDelete) return;
+    
     await deleteDoc(doc(db, 'users', user.uid, 'transactions', id));
+    
+    const toastId = Date.now();
+    setToastMessage({
+      id: toastId,
+      message: 'Transaction deleted',
+      onUndo: async () => {
+        const { id: oldId, ...rest } = txToDelete;
+        await addDoc(collection(db, 'users', user.uid, 'transactions'), rest);
+        setToastMessage(null);
+      }
+    });
+    
+    setTimeout(() => {
+      setToastMessage(prev => prev?.id === toastId ? null : prev);
+    }, 5000);
   };
 
   // ── Budget CRUD ──
@@ -304,7 +331,8 @@ export const FinanceProvider = ({ children }) => {
     <FinanceContext.Provider value={{
       // Data
       transactions, filteredTransactions, budgets, goals, upcomingItems, projects,
-      firestoreLoading,
+      firestoreLoading, totalIncome, totalExpense,
+      toastMessage, setToastMessage,
       // Month navigation
       selectedMonth, selectedMonthLabel, goToPrevMonth, goToNextMonth,
       // CRUD
