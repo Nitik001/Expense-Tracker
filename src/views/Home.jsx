@@ -38,8 +38,7 @@ const Home = () => {
   const currentBalance = totalIncome - totalExpense;
 
   const recentTransactions = [...filteredTransactions]
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 6);
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const getIconForCategory = (category) => {
     switch ((category || '').toLowerCase()) {
