@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Bell, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Coffee, CreditCard, Sparkles, Briefcase, Plus, Clock } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
+import { useAuth } from '../context/AuthContext';
 import UpcomingSheet from '../components/UpcomingSheet';
 import './Home.css';
 
 const Home = () => {
+  const { user } = useAuth();
   const {
     filteredTransactions,
     openModal,
@@ -55,7 +57,7 @@ const Home = () => {
       <div className="home-header">
         <div className="header-top flex justify-between items-center">
           <div className="profile-image">
-            <img src="https://i.pravatar.cc/150?img=11" alt="User" />
+            <img src={user?.photoURL || "https://i.pravatar.cc/150?img=11"} alt="User Profile" referrerPolicy="no-referrer" />
             <div className="notification-badge"></div>
           </div>
 
