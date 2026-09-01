@@ -11,5 +11,16 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 80px; /* Space for bottom nav */
+  padding-bottom: 80px; /* Space for bottom nav on mobile */
+}
+
+@media (min-width: 768px) {
+  .app-layout {
+    flex-direction: row;
+  }
+  
+  .content-area {
+    padding-bottom: 0;
+    padding-left: 80px; /* Space for side nav on desktop */
+  }
 }

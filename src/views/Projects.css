@@ -1,0 +1,14 @@
+.projects-view {
+  padding: 20px;
+  padding-bottom: 90px;
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+@media (min-width: 768px) {
+  .projects-view {
+    padding: 60px 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+}

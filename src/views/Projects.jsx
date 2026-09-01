@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useFinance } from '../context/FinanceContext';
 import ProjectModal from '../components/ProjectModal';
 import { motion, AnimatePresence } from 'framer-motion';
+import './Projects.css';
 
 const Projects = () => {
   const { projects, transactions, formatAmount } = useFinance();
@@ -31,7 +32,7 @@ const Projects = () => {
   };
 
   return (
-    <div className="animate-slide-up" style={{ padding: '20px', paddingBottom: '90px', minHeight: '100vh', background: 'var(--color-background)' }}>
+    <div className="projects-view animate-slide-up">
       <div className="flex justify-between items-center mb-6">
         <button className="icon-btn-simple"><ChevronLeft size={24} /></button>
         <h2 className="text-xl font-bold mr-auto ml-2">{t('projects.title')}</h2>

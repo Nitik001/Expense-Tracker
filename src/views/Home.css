@@ -218,3 +218,25 @@
   flex-direction: column;
   gap: 4px;
 }
+
+@media (min-width: 768px) {
+  .home-header {
+    border-bottom-left-radius: 60px;
+    border-bottom-right-radius: 60px;
+    padding: 60px 40px 100px 40px;
+  }
+
+  .home-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: 0 40px;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .home-right-col .section-title.mt-4 {
+    margin-top: 0;
+  }
+}

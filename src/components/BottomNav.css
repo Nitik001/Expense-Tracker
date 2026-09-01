@@ -72,3 +72,34 @@
 .fab-button:active {
   transform: scale(0.95);
 }
+
+@media (min-width: 768px) {
+  .bottom-nav {
+    top: 0;
+    right: auto;
+    width: 80px;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    gap: 32px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-right: 1px solid var(--color-border);
+    padding: 20px 0;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.03);
+  }
+
+  .nav-item {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .nav-fab-container {
+    margin: 20px 0;
+  }
+
+  .fab-button {
+    position: relative;
+    bottom: 0;
+  }
+}
