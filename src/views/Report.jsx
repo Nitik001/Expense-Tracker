@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, BarChart2, PieChart } from 'lucide-react';
-import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Sector } from 'recharts';
+import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Sector, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useFinance } from '../context/FinanceContext';
 import './Report.css';
 
@@ -32,6 +33,8 @@ const renderActiveShape = (props) => {
 const Report = () => {
   const [activeTab, setActiveTab] = useState('Expenses');
   const [activeIndex, setActiveIndex] = useState(0);
+  const [chartType, setChartType] = useState('pie');
+  const [expandedCategory, setExpandedCategory] = useState(null);
   const {
     filteredTransactions,
     formatAmount,
@@ -118,8 +121,20 @@ const Report = () => {
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold text-lg">{activeTab} Report</h3>
           <div className="flex gap-2">
-            <div className="chart-toggle-btn"><BarChart2 size={16} color="var(--color-text-muted)" /></div>
-            <div className="chart-toggle-btn active"><PieChart size={16} color="white" /></div>
+            <div 
+              className={`chart-toggle-btn ${chartType === 'bar' ? 'active' : ''}`}
+              onClick={() => setChartType('bar')}
+              style={{cursor: 'pointer'}}
+            >
+              <BarChart2 size={16} color={chartType === 'bar' ? 'white' : 'var(--color-text-muted)'} />
+            </div>
+            <div 
+              className={`chart-toggle-btn ${chartType === 'pie' ? 'active' : ''}`}
+              onClick={() => setChartType('pie')}
+              style={{cursor: 'pointer'}}
+            >
+              <PieChart size={16} color={chartType === 'pie' ? 'white' : 'var(--color-text-muted)'} />
+            </div>
           </div>
         </div>
 
@@ -133,25 +148,42 @@ const Report = () => {
             ) : (
               <>
                 <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPie>
-                    <Pie
-                      activeIndex={activeIndex}
-                      activeShape={renderActiveShape}
-                      data={chartData}
-                      innerRadius="65%"
-                      outerRadius="85%"
-                      paddingAngle={5}
-                      dataKey="value"
-                      stroke="none"
-                      cornerRadius={10}
-                      onClick={onPieEnter}
-                      onMouseEnter={onPieEnter}
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </RechartsPie>
+                  {chartType === 'pie' ? (
+                    <RechartsPie>
+                      <Pie
+                        activeIndex={activeIndex}
+                        activeShape={renderActiveShape}
+                        data={chartData}
+                        innerRadius="65%"
+                        outerRadius="85%"
+                        paddingAngle={5}
+                        dataKey="value"
+                        stroke="none"
+                        cornerRadius={10}
+                        onClick={onPieEnter}
+                        onMouseEnter={onPieEnter}
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                    </RechartsPie>
+                  ) : (
+                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: 'var(--color-text-muted)'}} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: 'var(--color-text-muted)'}} />
+                      <Tooltip 
+                        cursor={{fill: 'var(--color-surface-2)'}}
+                        contentStyle={{backgroundColor: 'var(--color-surface)', border: 'none', borderRadius: '12px', boxShadow: 'var(--shadow-md)'}}
+                        formatter={(value) => formatAmount(value)}
+                      />
+                      <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  )}
                 </ResponsiveContainer>
               </>
             )}
@@ -164,27 +196,66 @@ const Report = () => {
         </div>
 
         <div className="expense-list flex flex-col gap-4">
-          {chartData.map((item) => (
-            <div key={item.name} className="expense-item bg-surface rounded-md p-4 shadow-sm">
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex gap-3 items-center">
-                  <div className="expense-icon-small" style={{ backgroundColor: `${item.color}20` }}>
-                    <div className="dot" style={{ backgroundColor: item.color }}></div>
+          {chartData.map((item) => {
+            const isExpanded = expandedCategory === item.name;
+            const categoryTransactions = filteredTransactions.filter(
+              t => t.type === (activeTab === 'Expenses' ? 'expense' : 'income') && t.category === item.name
+            );
+            
+            return (
+              <div 
+                key={item.name} 
+                className="expense-item bg-surface rounded-md p-4 shadow-sm"
+                onClick={() => setExpandedCategory(isExpanded ? null : item.name)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex gap-3 items-center">
+                    <div className="expense-icon-small" style={{ backgroundColor: `${item.color}20` }}>
+                      <div className="dot" style={{ backgroundColor: item.color }}></div>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">{item.name}</h4>
+                      <span className="text-xs text-muted">{item.percentage}% of total</span>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold">{item.name}</h4>
-                    <span className="text-xs text-muted">{item.percentage}% of total</span>
+                  <div className="text-right">
+                    <h4 className="font-semibold">{formatAmount(item.value)}</h4>
                   </div>
                 </div>
-                <div className="text-right">
-                  <h4 className="font-semibold">{formatAmount(item.value)}</h4>
+                <div className="progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${item.percentage}%`, backgroundColor: item.color }}></div>
                 </div>
+                
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                      animate={{ height: 'auto', opacity: 1, marginTop: 16 }}
+                      exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                      style={{ overflow: 'hidden' }}
+                    >
+                      <div className="pt-3 flex flex-col gap-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                        {categoryTransactions.length > 0 ? (
+                          categoryTransactions.map(tx => (
+                            <div key={tx.id} className="flex justify-between items-center text-sm py-1">
+                              <div>
+                                <p className="font-medium">{tx.description || tx.category}</p>
+                                <p className="text-xs text-muted">{new Date(tx.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</p>
+                              </div>
+                              <span className="font-semibold">{formatAmount(tx.amount)}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs text-muted text-center py-2">No transactions</p>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-              <div className="progress-bar-bg">
-                <div className="progress-bar-fill" style={{ width: `${item.percentage}%`, backgroundColor: item.color }}></div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
