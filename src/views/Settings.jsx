@@ -35,7 +35,7 @@ const Settings = () => {
         <h2 className="text-xl font-bold mr-auto ml-2">{t('settings.title')}</h2>
       </div>
 
-      <div className="settings-grid">
+
       {/* ── Account card ── */}
       {user && (
         <div className="settings-section mb-6">
@@ -185,7 +185,6 @@ const Settings = () => {
             </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   );

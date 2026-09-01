@@ -103,46 +103,43 @@ const Home = () => {
       </div>
 
       <div className="home-content">
-        <div className="home-left-col">
-          <div className="money-cards flex gap-4">
-            <div className="money-card">
-              <div className="card-icon income-icon">
-                <ArrowDown size={20} />
-              </div>
-              <span className="text-sm text-muted">{t('home.income')}</span>
-              <h3 className="text-xl font-bold">
-                <CountUp end={totalIncome} duration={1} separator="," prefix={currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$'} decimals={0} />
-              </h3>
+        <div className="money-cards flex gap-4">
+          <div className="money-card">
+            <div className="card-icon income-icon">
+              <ArrowDown size={20} />
             </div>
-            <div className="money-card">
-              <div className="card-icon expense-icon">
-                <ArrowUp size={20} />
-              </div>
-              <span className="text-sm text-muted">{t('home.expenses')}</span>
-              <h3 className="text-xl font-bold">
-                <CountUp end={totalExpense} duration={1} separator="," prefix={currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$'} decimals={0} />
-              </h3>
-            </div>
+            <span className="text-sm text-muted">{t('home.income')}</span>
+            <h3 className="text-xl font-bold">
+              <CountUp end={totalIncome} duration={1} separator="," prefix={currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$'} decimals={0} />
+            </h3>
           </div>
-
-          {/* Upcoming income banner */}
-          <div className="upcoming-banner flex justify-between items-center" onClick={() => setUpcomingOpen(true)}>
-            <div className="flex items-center gap-2">
-              <Clock size={16} color="#f59e0b" />
-              <span className="text-sm font-medium" style={{ color: 'white' }}>
-                {pendingCount > 0 ? `${pendingCount} ${t('home.upcomingPayments')}` : t('home.trackUpcoming')}
-              </span>
+          <div className="money-card">
+            <div className="card-icon expense-icon">
+              <ArrowUp size={20} />
             </div>
-            <span className="text-sm font-medium flex items-center" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              {t('home.view')} <ChevronRight size={16} />
-            </span>
+            <span className="text-sm text-muted">{t('home.expenses')}</span>
+            <h3 className="text-xl font-bold">
+              <CountUp end={totalExpense} duration={1} separator="," prefix={currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$'} decimals={0} />
+            </h3>
           </div>
         </div>
 
-        <div className="home-right-col">
-          <div className="section-title flex justify-between items-center mt-4">
-            <h2 className="text-lg font-semibold">{t('home.transactions')}</h2>
+        {/* Upcoming income banner */}
+        <div className="upcoming-banner flex justify-between items-center" onClick={() => setUpcomingOpen(true)}>
+          <div className="flex items-center gap-2">
+            <Clock size={16} color="#f59e0b" />
+            <span className="text-sm font-medium" style={{ color: 'white' }}>
+              {pendingCount > 0 ? `${pendingCount} ${t('home.upcomingPayments')}` : t('home.trackUpcoming')}
+            </span>
           </div>
+          <span className="text-sm font-medium flex items-center" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            {t('home.view')} <ChevronRight size={16} />
+          </span>
+        </div>
+
+        <div className="section-title flex justify-between items-center mt-4">
+          <h2 className="text-lg font-semibold">{t('home.transactions')}</h2>
+        </div>
 
         <div className="transaction-list flex flex-col gap-3">
           {recentTransactions.length === 0 ? (
@@ -214,7 +211,6 @@ const Home = () => {
               ))}
             </AnimatePresence>
           )}
-        </div>
         </div>
       </div>
 

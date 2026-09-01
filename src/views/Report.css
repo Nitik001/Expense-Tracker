@@ -140,20 +140,3 @@
   border-radius: var(--radius-full);
   transition: width 1s ease-out;
 }
-
-@media (min-width: 768px) {
-  .report-view {
-    padding: 60px 40px;
-    max-width: 1000px;
-    margin: 0 auto;
-  }
-  
-  .chart-container {
-    height: 350px;
-  }
-  
-  .chart-inner {
-    width: 320px;
-    height: 320px;
-  }
-}
