@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useFinance } from '../context/FinanceContext';
+import { useTranslation } from 'react-i18next';
 import { X, Trash2, Tag, FileText } from 'lucide-react';
 import './TransactionModal.css';
 
@@ -13,6 +14,7 @@ const TransactionModal = () => {
     addTransaction, updateTransaction, deleteTransaction,
     editingTransaction, currency
   } = useFinance();
+  const { t } = useTranslation();
 
   const [type, setType]       = useState('expense');
   const [amount, setAmount]   = useState('');
@@ -81,7 +83,7 @@ const TransactionModal = () => {
         {/* Header */}
         <div className="modal-header flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">
-            {editingTransaction ? 'Edit Transaction' : 'Add Transaction'}
+            {editingTransaction ? (type === 'expense' ? t('tx.editExpense') : t('tx.editIncome')) : (type === 'expense' ? t('tx.addExpense') : t('tx.addIncome'))}
           </h2>
           <button className="icon-btn-simple" onClick={closeModal}><X size={24} /></button>
         </div>
@@ -89,17 +91,17 @@ const TransactionModal = () => {
         {/* Type Toggle */}
         <div className="tab-toggle mb-5">
           <button className={`tab-btn ${type === 'expense' ? 'active' : ''}`} onClick={() => setType('expense')} type="button">
-            Expense
+            {t('tx.expense')}
           </button>
           <button className={`tab-btn ${type === 'income' ? 'active' : ''}`} onClick={() => setType('income')} type="button">
-            Income
+            {t('tx.income')}
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Amount */}
           <div className="form-group">
-            <label className="form-label">Amount ({currencySymbol})</label>
+            <label className="form-label">{t('tx.amount')} ({currencySymbol})</label>
             <input
               type="number" step="0.01" value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -109,7 +111,7 @@ const TransactionModal = () => {
 
           {/* Category */}
           <div className="form-group">
-            <label className="form-label">Category</label>
+            <label className="form-label">{t('tx.category')}</label>
             <input
               type="text" value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -164,7 +166,7 @@ const TransactionModal = () => {
               </select>
             </div>
             <div className="form-group flex-1">
-              <label className="form-label">Date</label>
+              <label className="form-label">{t('tx.date')}</label>
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="form-input" />
             </div>
           </div>
@@ -177,7 +179,7 @@ const TransactionModal = () => {
               </button>
             )}
             <button type="submit" className="btn-primary flex-1">
-              {editingTransaction ? 'Save Changes' : 'Save Transaction'}
+              {editingTransaction ? t('save') : (type === 'expense' ? t('tx.addExpense') : t('tx.addIncome'))}
             </button>
           </div>
         </form>

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, BarChart2, PieChart } from 'lucide-react';
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Sector, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useFinance } from '../context/FinanceContext';
 import './Report.css';
 
@@ -35,6 +36,7 @@ const Report = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [chartType, setChartType] = useState('pie');
   const [expandedCategory, setExpandedCategory] = useState(null);
+  const { t } = useTranslation();
   const {
     filteredTransactions,
     formatAmount,
@@ -60,13 +62,14 @@ const Report = () => {
 
     return Object.entries(categoryTotals)
       .map(([name, value], index) => ({
-        name,
+        name: t(`cat.${name}`, { defaultValue: name }),
+        originalName: name,
         value,
         percentage: total > 0 ? ((value / total) * 100).toFixed(1) : '0.0',
         color: COLORS[index % COLORS.length]
       }))
       .sort((a, b) => b.value - a.value);
-  }, [filteredTransactions, activeTab]);
+  }, [filteredTransactions, activeTab, t]);
 
   const onPieEnter = (_, index) => {
     setActiveIndex(index);
@@ -79,7 +82,7 @@ const Report = () => {
     <div className="report-view animate-slide-up">
       <div className="page-header flex justify-between items-center">
         <button className="icon-btn-simple"><ChevronLeft size={24} /></button>
-        <h2 className="text-xl font-bold">Report</h2>
+        <h2 className="text-xl font-bold">{t('report.title')}</h2>
 
         {/* Month navigator */}
         <div className="flex items-center gap-2">
@@ -106,20 +109,20 @@ const Report = () => {
             className={`tab-btn ${activeTab === 'Expenses' ? 'active' : ''}`}
             onClick={() => setActiveTab('Expenses')}
           >
-            Expenses
+            {t('report.expenses')}
           </button>
           <button
             className={`tab-btn ${activeTab === 'Income' ? 'active' : ''}`}
             onClick={() => setActiveTab('Income')}
           >
-            Income
+            {t('report.income')}
           </button>
         </div>
       </div>
 
       <div className="report-content">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold text-lg">{activeTab} Report</h3>
+          <h3 className="font-semibold text-lg">{activeTab === 'Expenses' ? t('report.expenses') : t('report.income')} {t('report.title')}</h3>
           <div className="flex gap-2">
             <div 
               className={`chart-toggle-btn ${chartType === 'bar' ? 'active' : ''}`}
@@ -143,7 +146,7 @@ const Report = () => {
             {chartData.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-2" style={{ height: '100%' }}>
                 <span style={{ fontSize: '2.5rem' }}>📊</span>
-                <span className="text-sm text-muted">No {activeTab.toLowerCase()} in {selectedMonthLabel}</span>
+                <span className="text-sm text-muted">{t('report.noData', { type: activeTab === 'Expenses' ? t('report.expenses').toLowerCase() : t('report.income').toLowerCase(), month: selectedMonthLabel })}</span>
               </div>
             ) : (
               <>
@@ -191,22 +194,22 @@ const Report = () => {
         </div>
 
         <div className="flex justify-between items-center mb-4 mt-6">
-          <span className="text-sm text-muted">All {activeTab}</span>
-          <span className="text-sm text-muted">Total <span className="font-bold text-text">{formatAmount(totalAmount)}</span></span>
+          <span className="text-sm text-muted">{activeTab === 'Expenses' ? t('report.allExpenses') : t('report.allIncome')}</span>
+          <span className="text-sm text-muted">{t('report.total')} <span className="font-bold text-text">{formatAmount(totalAmount)}</span></span>
         </div>
 
         <div className="expense-list flex flex-col gap-4">
           {chartData.map((item) => {
-            const isExpanded = expandedCategory === item.name;
+            const isExpanded = expandedCategory === item.originalName;
             const categoryTransactions = filteredTransactions.filter(
-              t => t.type === (activeTab === 'Expenses' ? 'expense' : 'income') && t.category === item.name
+              t => t.type === (activeTab === 'Expenses' ? 'expense' : 'income') && t.category === item.originalName
             );
             
             return (
               <div 
-                key={item.name} 
+                key={item.originalName} 
                 className="expense-item bg-surface rounded-md p-4 shadow-sm"
-                onClick={() => setExpandedCategory(isExpanded ? null : item.name)}
+                onClick={() => setExpandedCategory(isExpanded ? null : item.originalName)}
                 style={{ cursor: 'pointer' }}
               >
                 <div className="flex justify-between items-start mb-3">
@@ -216,7 +219,7 @@ const Report = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold">{item.name}</h4>
-                      <span className="text-xs text-muted">{item.percentage}% of total</span>
+                      <span className="text-xs text-muted">{item.percentage}% {t('report.ofTotal')}</span>
                     </div>
                   </div>
                   <div className="text-right">
@@ -240,14 +243,14 @@ const Report = () => {
                           categoryTransactions.map(tx => (
                             <div key={tx.id} className="flex justify-between items-center text-sm py-1">
                               <div>
-                                <p className="font-medium">{tx.description || tx.category}</p>
+                                <p className="font-medium">{tx.description || t(`cat.${tx.category}`, { defaultValue: tx.category })}</p>
                                 <p className="text-xs text-muted">{new Date(tx.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</p>
                               </div>
                               <span className="font-semibold">{formatAmount(tx.amount)}</span>
                             </div>
                           ))
                         ) : (
-                          <p className="text-xs text-muted text-center py-2">No transactions</p>
+                          <p className="text-xs text-muted text-center py-2">{t('report.noTransactions')}</p>
                         )}
                       </div>
                     </motion.div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Bell, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Coffee, CreditCard, Sparkles, Briefcase, Plus, Clock, Trash2 } from 'lucide-react';
+import { Bell, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Coffee, CreditCard, Sparkles, Briefcase, Plus, Clock, Trash2, ArrowDown, ArrowUp } from 'lucide-react';
 import CountUpPkg from 'react-countup';
+import { useTranslation } from 'react-i18next';
 const CountUp = typeof CountUpPkg === 'function' ? CountUpPkg : CountUpPkg.default;
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFinance } from '../context/FinanceContext';
@@ -10,6 +11,7 @@ import './Home.css';
 
 const Home = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const {
     filteredTransactions,
     openModal,
@@ -21,6 +23,8 @@ const Home = () => {
     upcomingItems,
     currency,
     deleteTransaction,
+    totalIncome,
+    totalExpense
   } = useFinance();
 
   const [upcomingOpen, setUpcomingOpen] = useState(false);
@@ -31,15 +35,8 @@ const Home = () => {
   const isCurrentMonth =
     selectedMonth.year === now.getFullYear() && selectedMonth.month === now.getMonth();
 
-  const totalIncome = filteredTransactions
-    .filter(t => t.type === 'income')
-    .reduce((acc, curr) => acc + curr.amount, 0);
-  const totalExpense = filteredTransactions
-    .filter(t => t.type === 'expense')
-    .reduce((acc, curr) => acc + curr.amount, 0);
   const currentBalance = totalIncome - totalExpense;
 
-  // Sorted newest-first, show up to 6
   const recentTransactions = [...filteredTransactions]
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 6);
@@ -92,7 +89,7 @@ const Home = () => {
 
         <div className="balance-section flex flex-col items-center gap-2">
           <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-            {isCurrentMonth ? 'Current Balance' : `Balance — ${selectedMonthLabel}`}
+            {t('home.balance')}
           </span>
           <h1 className="text-4xl font-bold flex items-center justify-center" style={{ color: 'white' }}>
             <CountUp 
@@ -103,35 +100,25 @@ const Home = () => {
               decimals={0}
             />
           </h1>
-          <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-            {filteredTransactions.length === 0
-              ? 'No transactions this month'
-              : `${filteredTransactions.length} transaction${filteredTransactions.length > 1 ? 's' : ''}`}
-          </span>
         </div>
       </div>
 
       <div className="home-content">
-        <div className="section-title flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Your Money <span className="info-icon">i</span></h2>
-          <span className="text-sm text-muted flex items-center">Details <ChevronRight size={16} /></span>
-        </div>
-
         <div className="money-cards flex gap-4">
           <div className="money-card">
             <div className="card-icon income-icon">
-              <TrendingUp size={20} />
+              <ArrowDown size={20} />
             </div>
-            <span className="text-sm text-muted">Income <span className="info-icon">i</span></span>
+            <span className="text-sm text-muted">{t('home.income')}</span>
             <h3 className="text-xl font-bold">
               <CountUp end={totalIncome} duration={1} separator="," prefix={currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$'} decimals={0} />
             </h3>
           </div>
           <div className="money-card">
             <div className="card-icon expense-icon">
-              <TrendingDown size={20} />
+              <ArrowUp size={20} />
             </div>
-            <span className="text-sm text-muted">Expenses <span className="info-icon">i</span></span>
+            <span className="text-sm text-muted">{t('home.expenses')}</span>
             <h3 className="text-xl font-bold">
               <CountUp end={totalExpense} duration={1} separator="," prefix={currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$'} decimals={0} />
             </h3>
@@ -143,34 +130,23 @@ const Home = () => {
           <div className="flex items-center gap-2">
             <Clock size={16} color="#f59e0b" />
             <span className="text-sm font-medium" style={{ color: 'white' }}>
-              {pendingCount > 0 ? `${pendingCount} upcoming payment${pendingCount > 1 ? 's' : ''}` : 'Track upcoming income'}
+              {pendingCount > 0 ? `${pendingCount} ${t('home.upcomingPayments')}` : t('home.trackUpcoming')}
             </span>
           </div>
           <span className="text-sm font-medium flex items-center" style={{ color: 'rgba(255,255,255,0.7)' }}>
-            View <ChevronRight size={16} />
+            {t('home.view')} <ChevronRight size={16} />
           </span>
         </div>
 
         <div className="section-title flex justify-between items-center mt-4">
-          <h2 className="text-lg font-semibold">Transactions</h2>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted">For the Period</span>
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-muted">Recent</span>
-          <span className="text-xs text-muted">
-            Total <span className="font-bold text-text">{formatAmount(totalIncome + totalExpense)}</span>
-          </span>
+          <h2 className="text-lg font-semibold">{t('home.transactions')}</h2>
         </div>
 
         <div className="transaction-list flex flex-col gap-3">
           {recentTransactions.length === 0 ? (
             <div className="empty-state flex flex-col items-center justify-center gap-2 py-8">
               <span style={{ fontSize: '2.5rem' }}>📭</span>
-              <span className="text-sm text-muted">No transactions in {selectedMonthLabel}</span>
-              <span className="text-xs text-muted">Tap + to add one</span>
+              <span className="text-sm text-muted">{t('home.noTransactions')}</span>
             </div>
           ) : (
             <AnimatePresence>
@@ -209,7 +185,7 @@ const Home = () => {
                       {getIconForCategory(tx.category)}
                     </div>
                     <div className="transaction-details">
-                      <h4 className="font-semibold">{tx.category}</h4>
+                      <h4 className="font-semibold">{t(`cat.${tx.category}`, { defaultValue: tx.category })}</h4>
                       <div className="flex items-center gap-1 flex-wrap">
                         {tx.tag && (
                           <span className="tx-mini-tag">{tx.tag}</span>

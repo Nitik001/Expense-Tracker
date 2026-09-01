@@ -12,11 +12,14 @@
   "dependencies": {
     "firebase": "^12.18.0",
     "framer-motion": "^13.1.1",
+    "i18next": "^26.4.1",
     "lucide-react": "^1.37.0",
+    "puppeteer": "^25.9.0",
     "react": "^19.2.8",
     "react-confetti": "^6.4.0",
     "react-countup": "^6.5.3",
     "react-dom": "^19.2.8",
+    "react-i18next": "^17.0.13",
     "react-router-dom": "^7.18.3",
     "react-use": "^17.6.1",
     "recharts": "^3.10.1"

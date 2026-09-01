@@ -1,5 +1,6 @@
 import React from 'react';
-import { ChevronLeft, Moon, Sun, IndianRupee, Database, ChevronRight, AlertTriangle, Palette, LogOut, User } from 'lucide-react';
+import { ChevronLeft, Moon, Sun, IndianRupee, Database, ChevronRight, AlertTriangle, Palette, LogOut, User, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useFinance } from '../context/FinanceContext';
 import { useAuth } from '../context/AuthContext';
 import './Settings.css';
@@ -7,15 +8,22 @@ import './Settings.css';
 const Settings = () => {
   const { currency, setCurrency, clearAllData, theme, toggleTheme } = useFinance();
   const { user, signOut } = useAuth();
+  const { t, i18n } = useTranslation();
+
+  const handleLanguageChange = (e) => {
+    const newLang = e.target.value;
+    i18n.changeLanguage(newLang);
+    localStorage.setItem('finance_language', newLang);
+  };
 
   const handleSignOut = async () => {
-    if (window.confirm('Sign out of Finance Tracker?')) {
+    if (window.confirm(t('settings.signOutConfirm'))) {
       await signOut();
     }
   };
 
   const handleClearData = () => {
-    if (window.confirm('Are you sure you want to delete all transactions, budgets, and goals? This cannot be undone.')) {
+    if (window.confirm(t('settings.clearDataConfirm'))) {
       clearAllData();
     }
   };
@@ -24,13 +32,13 @@ const Settings = () => {
     <div className="settings-view animate-slide-up">
       <div className="page-header flex justify-between items-center mb-6">
         <button className="icon-btn-simple"><ChevronLeft size={24} /></button>
-        <h2 className="text-xl font-bold mr-auto ml-2">Settings</h2>
+        <h2 className="text-xl font-bold mr-auto ml-2">{t('settings.title')}</h2>
       </div>
 
       {/* ── Account card ── */}
       {user && (
         <div className="settings-section mb-6">
-          <h3 className="section-label">Account</h3>
+          <h3 className="section-label">{t('settings.account')}</h3>
           <div className="settings-card">
             <div className="settings-item flex items-center gap-3">
               {user.photoURL ? (
@@ -51,7 +59,7 @@ const Settings = () => {
 
       {/* ── Preferences ── */}
       <div className="settings-section">
-        <h3 className="section-label">Preferences</h3>
+        <h3 className="section-label">{t('settings.preferences')}</h3>
 
         <div className="settings-card">
           {/* Theme Toggle */}
@@ -61,8 +69,8 @@ const Settings = () => {
                 {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
               </div>
               <div>
-                <span className="font-semibold">Appearance</span>
-                <p className="text-xs text-muted">{theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}</p>
+                <span className="font-semibold">{t('settings.appearance')}</span>
+                <p className="text-xs text-muted">{theme === 'light' ? t('settings.darkMode') : t('settings.lightMode')}</p>
               </div>
             </div>
             {/* Toggle Switch */}
@@ -82,8 +90,8 @@ const Settings = () => {
                 <IndianRupee size={20} />
               </div>
               <div>
-                <span className="font-semibold">Currency</span>
-                <p className="text-xs text-muted">Choose your display currency</p>
+                <span className="font-semibold">{t('settings.currency')}</span>
+                <p className="text-xs text-muted">{t('settings.currencyDesc')}</p>
               </div>
             </div>
             <select
@@ -97,12 +105,35 @@ const Settings = () => {
               <option value="GBP">GBP (£)</option>
             </select>
           </div>
+
+          <div className="settings-divider"></div>
+
+          {/* Language */}
+          <div className="settings-item flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="setting-icon" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
+                <Globe size={20} />
+              </div>
+              <div>
+                <span className="font-semibold">{t('settings.language')}</span>
+                <p className="text-xs text-muted">{t('settings.languageDesc')}</p>
+              </div>
+            </div>
+            <select
+              value={i18n.language}
+              onChange={handleLanguageChange}
+              className="currency-select text-sm font-bold"
+            >
+              <option value="en">English</option>
+              <option value="hi">हिंदी</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* ── About ── */}
       <div className="settings-section mt-6">
-        <h3 className="section-label">About</h3>
+        <h3 className="section-label">{t('settings.about')}</h3>
         <div className="settings-card">
           <div className="settings-item flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -110,8 +141,8 @@ const Settings = () => {
                 <Palette size={20} />
               </div>
               <div>
-                <span className="font-semibold">Finance Tracker</span>
-                <p className="text-xs text-muted">Version 1.0.0</p>
+                <span className="font-semibold">{t('appName')}</span>
+                <p className="text-xs text-muted">{t('settings.version')} 1.0.0</p>
               </div>
             </div>
             <ChevronRight size={16} color="var(--color-text-muted)" />
@@ -121,7 +152,7 @@ const Settings = () => {
 
       {/* ── Danger Zone ── */}
       <div className="settings-section mt-6">
-        <h3 className="section-label">Data Management</h3>
+        <h3 className="section-label">{t('settings.dataManagement')}</h3>
         <div className="settings-card">
           <div className="settings-item flex justify-between items-center" onClick={handleClearData}>
             <div className="flex items-center gap-3">
@@ -129,8 +160,8 @@ const Settings = () => {
                 <Database size={20} />
               </div>
               <div>
-                <span className="font-semibold" style={{ color: 'var(--color-danger)' }}>Clear All Data</span>
-                <p className="text-xs text-muted">Delete all transactions &amp; goals</p>
+                <span className="font-semibold" style={{ color: 'var(--color-danger)' }}>{t('settings.clearData')}</span>
+                <p className="text-xs text-muted">{t('settings.clearDataDesc')}</p>
               </div>
             </div>
             <AlertTriangle size={20} color="var(--color-danger)" />
@@ -147,8 +178,8 @@ const Settings = () => {
                 <LogOut size={20} />
               </div>
               <div>
-                <span className="font-semibold" style={{ color: 'var(--color-danger)' }}>Sign Out</span>
-                <p className="text-xs text-muted">You can sign back in anytime</p>
+                <span className="font-semibold" style={{ color: 'var(--color-danger)' }}>{t('settings.signOut')}</span>
+                <p className="text-xs text-muted">{t('settings.signOutDesc')}</p>
               </div>
             </div>
           </div>

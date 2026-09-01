@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useFinance } from '../context/FinanceContext';
+import { useTranslation } from 'react-i18next';
 import { X, Trash2 } from 'lucide-react';
 import './TransactionModal.css'; // Reusing modal styles
 
 const PlanItemModal = ({ isOpen, onClose, type, itemToEdit }) => {
   const { addBudget, updateBudget, deleteBudget, addGoal, updateGoal, deleteGoal, currency } = useFinance();
+  const { t } = useTranslation();
   
   const currencySymbol = currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$';
   
@@ -65,14 +67,14 @@ const PlanItemModal = ({ isOpen, onClose, type, itemToEdit }) => {
       <div className="modal-content animate-slide-up">
         <div className="modal-header flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">
-            {itemToEdit ? `Edit ${type === 'budget' ? 'Budget' : 'Goal'}` : `Add ${type === 'budget' ? 'Budget' : 'Goal'}`}
+            {itemToEdit ? (type === 'budget' ? t('plan.editBudget') : t('plan.editGoal')) : (type === 'budget' ? t('plan.addBudget') : t('plan.addGoal'))}
           </h2>
           <button className="icon-btn-simple" onClick={onClose}><X size={24} /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="form-group">
-            <label className="text-sm font-medium text-muted">Name</label>
+            <label className="text-sm font-medium text-muted">{t('plan.name')}</label>
             <input 
               type="text" 
               value={name} 
@@ -84,7 +86,7 @@ const PlanItemModal = ({ isOpen, onClose, type, itemToEdit }) => {
           </div>
 
           <div className="form-group">
-            <label className="text-sm font-medium text-muted">Target Amount ({currencySymbol})</label>
+            <label className="text-sm font-medium text-muted">{t('plan.targetAmount')} ({currencySymbol})</label>
             <input 
               type="number" 
               step="0.01"
@@ -98,7 +100,7 @@ const PlanItemModal = ({ isOpen, onClose, type, itemToEdit }) => {
 
           {type !== 'budget' && (
             <div className="form-group">
-              <label className="text-sm font-medium text-muted">Current Saved ({currencySymbol})</label>
+              <label className="text-sm font-medium text-muted">{t('plan.currentSaved')} ({currencySymbol})</label>
               <input 
                 type="number" 
                 step="0.01"
@@ -111,7 +113,7 @@ const PlanItemModal = ({ isOpen, onClose, type, itemToEdit }) => {
           )}
 
           <div className="form-group">
-            <label className="text-sm font-medium text-muted">Color Theme</label>
+            <label className="text-sm font-medium text-muted">{t('plan.colorTheme')}</label>
             <input 
               type="color" 
               value={color} 
@@ -128,7 +130,7 @@ const PlanItemModal = ({ isOpen, onClose, type, itemToEdit }) => {
                </button>
             )}
             <button type="submit" className="btn-primary flex-1">
-              {itemToEdit ? 'Save Changes' : 'Create'}
+              {itemToEdit ? t('save') : t('create')}
             </button>
           </div>
         </form>

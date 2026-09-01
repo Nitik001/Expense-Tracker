@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
 import { ChevronLeft, Plus, ExternalLink, MoreVertical, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useFinance } from '../context/FinanceContext';
 import PlanItemModal from '../components/PlanItemModal';
 import './Plan.css';
@@ -11,6 +12,7 @@ const Plan = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('goal'); // 'goal' or 'budget'
   const [itemToEdit, setItemToEdit] = useState(null);
+  const { t } = useTranslation();
   
   const { width, height } = useWindowSize();
   const [showConfetti, setShowConfetti] = useState(false);
@@ -44,7 +46,7 @@ const Plan = () => {
       
       <div className="page-header flex justify-between items-center mb-6">
         <button className="icon-btn-simple"><ChevronLeft size={24} /></button>
-        <h2 className="text-xl font-bold mr-auto ml-2">My Plan</h2>
+        <h2 className="text-xl font-bold mr-auto ml-2">{t('plan.title')}</h2>
         <div className="flex gap-3">
            <button className="icon-btn-solid bg-black text-white" onClick={() => handleOpenModal('goal')}><Plus size={18} /></button>
            <button className="icon-btn-simple"><ExternalLink size={20} /></button>
@@ -52,8 +54,8 @@ const Plan = () => {
       </div>
 
       <div className="section-title flex justify-between items-center mb-4">
-        <h3 className="font-semibold text-lg">Goals</h3>
-        <span className="text-sm text-muted">View All</span>
+        <h3 className="font-semibold text-lg">{t('plan.goals')}</h3>
+        <span className="text-sm text-muted">{t('plan.viewAll')}</span>
       </div>
 
       {goals.map(goal => {
@@ -67,7 +69,7 @@ const Plan = () => {
                   </div>
                   <div>
                     <h4 className="font-bold">{goal.name}</h4>
-                    <span className="text-xs text-muted">View All</span>
+                    <span className="text-xs text-muted">{t('plan.viewAll')}</span>
                   </div>
               </div>
               <button className="icon-btn-simple bg-background rounded-full p-1" onClick={() => handleOpenModal('goal', goal)}>
@@ -76,8 +78,8 @@ const Plan = () => {
             </div>
 
             <div className="mb-2">
-              <h2 className="text-xl font-bold inline">${goal.current.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h2>
-              <span className="text-sm text-muted ml-1">Out of ${goal.target.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+              <h2 className="text-xl font-bold inline">{formatAmount(goal.current)}</h2>
+              <span className="text-sm text-muted ml-1">{t('plan.of')} {formatAmount(goal.target)}</span>
             </div>
 
             <div className="goal-progress-container mb-2">
@@ -90,20 +92,20 @@ const Plan = () => {
             </div>
             
             <div className="flex justify-between items-center mb-4">
-              <span className="text-xs text-muted">Your Progress</span>
-              <span className="text-xs font-bold">${(goal.target - goal.current).toLocaleString()} Left</span>
+              <span className="text-xs text-muted">{t('plan.yourProgress')}</span>
+              <span className="text-xs font-bold">{formatAmount(goal.target - goal.current)} {t('plan.left')}</span>
             </div>
 
             <div className={`alert-box ${percent >= 100 ? 'success-alert' : ''}`}>
               {percent >= 100 ? (
                 <>
                   <span style={{fontSize:'1.2rem', marginRight: '8px'}}>🎉</span>
-                  <span className="text-xs font-medium" style={{color: '#22c55e'}}>Goal Achieved! You did it!</span>
+                  <span className="text-xs font-medium" style={{color: '#22c55e'}}>{t('plan.goalAchieved')}</span>
                 </>
               ) : (
                 <>
                   <AlertCircle size={14} />
-                  <span className="text-xs font-medium">Keep saving, you're on track!</span>
+                  <span className="text-xs font-medium">{t('plan.goalOnTrack')}</span>
                 </>
               )}
             </div>
@@ -112,7 +114,7 @@ const Plan = () => {
       })}
 
       <div className="section-title flex justify-between items-center mb-4">
-        <h3 className="font-semibold text-lg">Budgets</h3>
+        <h3 className="font-semibold text-lg">{t('plan.budgets')}</h3>
         <button className="icon-btn-simple" onClick={() => handleOpenModal('budget')}><Plus size={16} /></button>
       </div>
 
@@ -135,7 +137,7 @@ const Plan = () => {
                 </div>
                 <div>
                   <h4 className="font-semibold">{budget.name}</h4>
-                  <span className="text-xs font-bold">{formatAmount(currentSpent)} <span className="text-muted font-normal">of {formatAmount(budget.target)}</span></span>
+                  <span className="text-xs font-bold">{formatAmount(currentSpent)} <span className="text-muted font-normal">{t('plan.of')} {formatAmount(budget.target)}</span></span>
                 </div>
               </div>
               <div className="circular-progress" style={{'--progress': percent, '--color': budget.color}}>
