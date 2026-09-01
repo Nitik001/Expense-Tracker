@@ -62,12 +62,14 @@ const TransactionModal = () => {
     } else {
       addTransaction(txData);
     }
+    if (navigator.vibrate) navigator.vibrate(50);
     closeModal();
   };
 
   const handleDelete = () => {
     if (editingTransaction) {
       deleteTransaction(editingTransaction.id);
+      if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
       closeModal();
     }
   };

@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import Confetti from 'react-confetti';
+import { useWindowSize } from 'react-use';
 import { ChevronLeft, Plus, ExternalLink, MoreVertical, AlertCircle } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
 import PlanItemModal from '../components/PlanItemModal';
@@ -9,6 +11,26 @@ const Plan = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('goal'); // 'goal' or 'budget'
   const [itemToEdit, setItemToEdit] = useState(null);
+  
+  const { width, height } = useWindowSize();
+  const [showConfetti, setShowConfetti] = useState(false);
+  const prevGoalsRef = useRef(goals);
+
+  useEffect(() => {
+    // Check if any goal just crossed 100%
+    const newlyCompleted = goals.some(goal => {
+      const prev = prevGoalsRef.current.find(g => g.id === goal.id);
+      const wasComplete = prev ? prev.current >= prev.target : false;
+      const isComplete = goal.current >= goal.target;
+      return !wasComplete && isComplete;
+    });
+
+    if (newlyCompleted) {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 8000);
+    }
+    prevGoalsRef.current = goals;
+  }, [goals]);
 
   const handleOpenModal = (type, item = null) => {
     setModalType(type);
@@ -18,6 +40,8 @@ const Plan = () => {
 
   return (
     <div className="plan-view animate-slide-up">
+      {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={500} style={{ zIndex: 9999, position: 'fixed', top: 0, left: 0 }} />}
+      
       <div className="page-header flex justify-between items-center mb-6">
         <button className="icon-btn-simple"><ChevronLeft size={24} /></button>
         <h2 className="text-xl font-bold mr-auto ml-2">My Plan</h2>
@@ -70,9 +94,18 @@ const Plan = () => {
               <span className="text-xs font-bold">${(goal.target - goal.current).toLocaleString()} Left</span>
             </div>
 
-            <div className="alert-box">
-              <AlertCircle size={14} />
-              <span className="text-xs font-medium">You're 30% behind schedule and off target.</span>
+            <div className={`alert-box ${percent >= 100 ? 'success-alert' : ''}`}>
+              {percent >= 100 ? (
+                <>
+                  <span style={{fontSize:'1.2rem', marginRight: '8px'}}>🎉</span>
+                  <span className="text-xs font-medium" style={{color: '#22c55e'}}>Goal Achieved! You did it!</span>
+                </>
+              ) : (
+                <>
+                  <AlertCircle size={14} />
+                  <span className="text-xs font-medium">Keep saving, you're on track!</span>
+                </>
+              )}
             </div>
           </div>
         );

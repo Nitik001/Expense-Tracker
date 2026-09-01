@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Bell, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Coffee, CreditCard, Sparkles, Briefcase, Plus, Clock } from 'lucide-react';
+import { Bell, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Coffee, CreditCard, Sparkles, Briefcase, Plus, Clock, Trash2 } from 'lucide-react';
+import CountUp from 'react-countup';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useFinance } from '../context/FinanceContext';
 import { useAuth } from '../context/AuthContext';
 import UpcomingSheet from '../components/UpcomingSheet';
@@ -16,6 +18,8 @@ const Home = () => {
     goToNextMonth,
     selectedMonth,
     upcomingItems,
+    currency,
+    deleteTransaction,
   } = useFinance();
 
   const [upcomingOpen, setUpcomingOpen] = useState(false);
@@ -89,8 +93,14 @@ const Home = () => {
           <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
             {isCurrentMonth ? 'Current Balance' : `Balance — ${selectedMonthLabel}`}
           </span>
-          <h1 className="text-4xl font-bold" style={{ color: 'white' }}>
-            {formatAmount(currentBalance)}
+          <h1 className="text-4xl font-bold flex items-center justify-center" style={{ color: 'white' }}>
+            <CountUp 
+              end={currentBalance} 
+              duration={1} 
+              separator="," 
+              prefix={currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$'}
+              decimals={0}
+            />
           </h1>
           <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
             {filteredTransactions.length === 0
@@ -112,14 +122,18 @@ const Home = () => {
               <TrendingUp size={20} />
             </div>
             <span className="text-sm text-muted">Income <span className="info-icon">i</span></span>
-            <h3 className="text-xl font-bold">{formatAmount(totalIncome)}</h3>
+            <h3 className="text-xl font-bold">
+              <CountUp end={totalIncome} duration={1} separator="," prefix={currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$'} decimals={0} />
+            </h3>
           </div>
           <div className="money-card">
             <div className="card-icon expense-icon">
               <TrendingDown size={20} />
             </div>
             <span className="text-sm text-muted">Expenses <span className="info-icon">i</span></span>
-            <h3 className="text-xl font-bold">{formatAmount(totalExpense)}</h3>
+            <h3 className="text-xl font-bold">
+              <CountUp end={totalExpense} duration={1} separator="," prefix={currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$'} decimals={0} />
+            </h3>
           </div>
         </div>
 
@@ -158,41 +172,68 @@ const Home = () => {
               <span className="text-xs text-muted">Tap + to add one</span>
             </div>
           ) : (
-            recentTransactions.map(tx => (
-              <div
-                key={tx.id}
-                className="transaction-item"
-                onClick={() => openModal(tx)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="transaction-icon flex items-center justify-center bg-surface shadow-sm rounded-lg" style={{ width: '40px', height: '40px' }}>
-                  {getIconForCategory(tx.category)}
-                </div>
-                <div className="transaction-details">
-                  <h4 className="font-semibold">{tx.category}</h4>
-                  <div className="flex items-center gap-1 flex-wrap">
-                    {tx.tag && (
-                      <span className="tx-mini-tag">{tx.tag}</span>
-                    )}
-                    {tx.note && (
-                      <span className="text-xs text-muted" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }}>· {tx.note}</span>
-                    )}
-                    {!tx.tag && !tx.note && (
-                      <span className="text-xs text-muted flex items-center gap-1">
-                        <div style={{ width: '8px', height: '8px', backgroundColor: tx.type === 'expense' ? '#ef4444' : '#22c55e', borderRadius: '2px' }}></div>
-                        {tx.account}
-                      </span>
-                    )}
+            <AnimatePresence>
+              {recentTransactions.map(tx => (
+                <motion.div
+                  key={tx.id}
+                  initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  animate={{ opacity: 1, height: 'auto', marginBottom: 0 }}
+                  exit={{ opacity: 0, height: 0, marginBottom: 0, overflow: 'hidden' }}
+                  transition={{ duration: 0.2 }}
+                  style={{ position: 'relative' }}
+                >
+                  <div style={{
+                    position: 'absolute', right: 0, top: 0, bottom: 0, width: '100%',
+                    backgroundColor: '#ef4444', borderRadius: '12px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '20px'
+                  }}>
+                    <Trash2 color="white" />
                   </div>
-                </div>
-                <div className="transaction-amounts text-right">
-                  <h4 className={`font-semibold ${tx.type === 'expense' ? 'text-danger' : 'text-success'}`}>
-                    {tx.type === 'expense' ? '-' : '+'}{formatAmount(tx.amount)}
-                  </h4>
-                  <span className="text-xs text-muted">{tx.date}</span>
-                </div>
-              </div>
-            ))
+                  
+                  <motion.div
+                    drag="x"
+                    dragConstraints={{ left: -100, right: 0 }}
+                    dragElastic={0.1}
+                    onDragEnd={(e, { offset }) => {
+                      if (offset.x < -80) {
+                        if (navigator.vibrate) navigator.vibrate(50);
+                        deleteTransaction(tx.id);
+                      }
+                    }}
+                    className="transaction-item"
+                    onClick={() => openModal(tx)}
+                    style={{ cursor: 'pointer', position: 'relative', zIndex: 2, background: 'var(--color-surface)' }}
+                  >
+                    <div className="transaction-icon flex items-center justify-center bg-surface shadow-sm rounded-lg" style={{ width: '40px', height: '40px' }}>
+                      {getIconForCategory(tx.category)}
+                    </div>
+                    <div className="transaction-details">
+                      <h4 className="font-semibold">{tx.category}</h4>
+                      <div className="flex items-center gap-1 flex-wrap">
+                        {tx.tag && (
+                          <span className="tx-mini-tag">{tx.tag}</span>
+                        )}
+                        {tx.note && (
+                          <span className="text-xs text-muted" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }}>· {tx.note}</span>
+                        )}
+                        {!tx.tag && !tx.note && (
+                          <span className="text-xs text-muted flex items-center gap-1">
+                            <div style={{ width: '8px', height: '8px', backgroundColor: tx.type === 'expense' ? '#ef4444' : '#22c55e', borderRadius: '2px' }}></div>
+                            {tx.account}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="transaction-amounts text-right">
+                      <h4 className={`font-semibold ${tx.type === 'expense' ? 'text-danger' : 'text-success'}`}>
+                        {tx.type === 'expense' ? '-' : '+'}{formatAmount(tx.amount)}
+                      </h4>
+                      <span className="text-xs text-muted">{tx.date}</span>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           )}
         </div>
       </div>

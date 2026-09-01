@@ -1,13 +1,37 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, BarChart2, PieChart } from 'lucide-react';
-import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Sector } from 'recharts';
 import { useFinance } from '../context/FinanceContext';
 import './Report.css';
 
 const COLORS = ['#9d7df2', '#3b82f6', '#22c55e', '#ff7f50', '#e5e7eb', '#f59e0b', '#ef4444'];
 
+const renderActiveShape = (props) => {
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props;
+  return (
+    <g>
+      <text x={cx} y={cy - 10} dy={8} textAnchor="middle" fill="#fff" fontSize={18} fontWeight="bold">
+        {payload.name}
+      </text>
+      <text x={cx} y={cy + 15} dy={8} textAnchor="middle" fill="rgba(255,255,255,0.7)" fontSize={14}>
+        {payload.percentage}%
+      </text>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + 12}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+      />
+    </g>
+  );
+};
+
 const Report = () => {
   const [activeTab, setActiveTab] = useState('Expenses');
+  const [activeIndex, setActiveIndex] = useState(0);
   const {
     filteredTransactions,
     formatAmount,
@@ -40,6 +64,11 @@ const Report = () => {
       }))
       .sort((a, b) => b.value - a.value);
   }, [filteredTransactions, activeTab]);
+
+  const onPieEnter = (_, index) => {
+    setActiveIndex(index);
+    if (navigator.vibrate) navigator.vibrate(20);
+  };
 
   const totalAmount = chartData.reduce((sum, item) => sum + item.value, 0);
 
@@ -106,13 +135,17 @@ const Report = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsPie>
                     <Pie
+                      activeIndex={activeIndex}
+                      activeShape={renderActiveShape}
                       data={chartData}
-                      innerRadius="70%"
-                      outerRadius="100%"
+                      innerRadius="65%"
+                      outerRadius="85%"
                       paddingAngle={5}
                       dataKey="value"
                       stroke="none"
                       cornerRadius={10}
+                      onClick={onPieEnter}
+                      onMouseEnter={onPieEnter}
                     >
                       {chartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -120,11 +153,6 @@ const Report = () => {
                     </Pie>
                   </RechartsPie>
                 </ResponsiveContainer>
-                <div className="chart-center-text">
-                  <span className="text-sm text-muted">Total {activeTab}</span>
-                  <h2 className="text-2xl font-bold">{formatAmount(totalAmount)}</h2>
-                </div>
-                <div className="chart-tooltip">{chartData.length > 0 ? chartData[0].percentage + '%' : '0%'}</div>
               </>
             )}
           </div>
