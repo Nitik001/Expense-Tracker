@@ -14,6 +14,7 @@ const resources = {
         home: 'Home',
         report: 'Report',
         plan: 'Plan',
+        projects: 'Clients',
         settings: 'Settings'
       },
       
@@ -47,7 +48,9 @@ const resources = {
         bankAccount: 'Bank Account',
         upi: 'UPI',
         creditCard: 'Credit Card',
-        wallet: 'Wallet'
+        wallet: 'Wallet',
+        projectClient: 'Project / Client',
+        none: 'None'
       },
       
       report: {
@@ -115,6 +118,19 @@ const resources = {
         haveAccount: 'Already have an account?',
         createOne: 'Create one'
       },
+
+      projects: {
+        title: 'Clients & Projects',
+        addProject: 'Add Client/Project',
+        editProject: 'Edit Client/Project',
+        name: 'Project or Client Name',
+        placeholder: 'e.g., Bridal Makeup - Priya',
+        netProfit: 'Net Profit',
+        income: 'Income',
+        expense: 'Expense',
+        total: 'Total',
+        noProjects: 'No clients or projects tracked yet'
+      },
       
       settings: {
         title: 'Settings',
@@ -166,6 +182,7 @@ const resources = {
         home: 'होम',
         report: 'रिपोर्ट',
         plan: 'योजना',
+        projects: 'ग्राहक',
         settings: 'सेटिंग्स'
       },
       
@@ -199,7 +216,9 @@ const resources = {
         bankAccount: 'बैंक खाता',
         upi: 'UPI',
         creditCard: 'क्रेडिट कार्ड',
-        wallet: 'वॉलेट'
+        wallet: 'वॉलेट',
+        projectClient: 'प्रोजेक्ट / ग्राहक',
+        none: 'कोई नहीं'
       },
       
       report: {
@@ -266,6 +285,19 @@ const resources = {
         noAccount: "क्या आपका खाता नहीं है?",
         haveAccount: 'क्या आपके पास पहले से खाता है?',
         createOne: 'एक बनाएं'
+      },
+
+      projects: {
+        title: 'ग्राहक और प्रोजेक्ट',
+        addProject: 'ग्राहक/प्रोजेक्ट जोड़ें',
+        editProject: 'ग्राहक/प्रोजेक्ट संपादित करें',
+        name: 'प्रोजेक्ट या ग्राहक का नाम',
+        placeholder: 'उदा., ब्राइडल मेकअप - प्रिया',
+        netProfit: 'शुद्ध लाभ',
+        income: 'आय',
+        expense: 'खर्च',
+        total: 'कुल',
+        noProjects: 'अभी तक कोई ग्राहक या प्रोजेक्ट ट्रैक नहीं किया गया'
       },
       
       settings: {

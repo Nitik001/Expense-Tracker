@@ -12,7 +12,7 @@ const TransactionModal = () => {
   const {
     isModalOpen, closeModal,
     addTransaction, updateTransaction, deleteTransaction,
-    editingTransaction, currency
+    editingTransaction, currency, projects
   } = useFinance();
   const { t } = useTranslation();
 
@@ -23,6 +23,7 @@ const TransactionModal = () => {
   const [note, setNote]       = useState('');
   const [tag, setTag]         = useState('');
   const [date, setDate]       = useState(() => new Date().toISOString().split('T')[0]);
+  const [projectId, setProjectId] = useState('');
 
   const currencySymbol = currency === 'INR' ? '₹' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$';
   const availableTags  = type === 'expense' ? EXPENSE_TAGS : INCOME_TAGS;
@@ -36,6 +37,7 @@ const TransactionModal = () => {
       setNote(editingTransaction.note || '');
       setTag(editingTransaction.tag || '');
       setDate(editingTransaction.date || new Date().toISOString().split('T')[0]);
+      setProjectId(editingTransaction.projectId || '');
     } else {
       setType('expense');
       setAmount('');
@@ -44,6 +46,7 @@ const TransactionModal = () => {
       setNote('');
       setTag('');
       setDate(new Date().toISOString().split('T')[0]);
+      setProjectId('');
     }
   }, [editingTransaction, isModalOpen]);
 
@@ -58,7 +61,10 @@ const TransactionModal = () => {
     e.preventDefault();
     if (!amount || !category) return;
 
-    const txData = { type, amount: parseFloat(amount), category, account, note, tag, date };
+    const txData = { 
+      type, amount: parseFloat(amount), category, account, 
+      note, tag, date, projectId: projectId || null 
+    };
 
     if (editingTransaction) {
       updateTransaction(editingTransaction.id, txData);
@@ -165,10 +171,21 @@ const TransactionModal = () => {
                 <option value="Wallet">{t('modal.wallet')}</option>
               </select>
             </div>
+            
             <div className="form-group flex-1">
-              <label className="form-label">{t('tx.date')}</label>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="form-input" />
+              <label className="form-label">{t('modal.projectClient', { defaultValue: 'Project/Client' })}</label>
+              <select className="form-input" value={projectId} onChange={e => setProjectId(e.target.value)}>
+                <option value="">{t('modal.none', { defaultValue: 'None' })}</option>
+                {projects.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
             </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">{t('tx.date')}</label>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="form-input" />
           </div>
 
           {/* Actions */}

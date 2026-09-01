@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, BarChart2, Briefcase, Settings, Plus } from 'lucide-react';
+import { Home, BarChart2, Briefcase, Settings, Plus, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useFinance } from '../context/FinanceContext';
 import './BottomNav.css';
@@ -30,6 +30,11 @@ const BottomNav = () => {
       <NavLink to="/plan" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
         <Briefcase size={24} />
         <span>{t('nav.plan')}</span>
+      </NavLink>
+
+      <NavLink to="/projects" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+        <Users size={24} />
+        <span>{t('nav.projects')}</span>
       </NavLink>
 
       <NavLink to="/settings" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>

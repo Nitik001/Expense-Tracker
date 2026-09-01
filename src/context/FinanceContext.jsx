@@ -27,6 +27,7 @@ export const FinanceProvider = ({ children }) => {
   const [budgets, setBudgets] = useState([]);
   const [goals, setGoals] = useState([]);
   const [upcomingItems, setUpcomingItems] = useState([]);
+  const [projects, setProjects] = useState([]);
 
   const [currency, setCurrencyState] = useState('INR');
   const [theme, setThemeState] = useState('light');
@@ -53,6 +54,7 @@ export const FinanceProvider = ({ children }) => {
       setBudgets([]);
       setGoals([]);
       setUpcomingItems([]);
+      setProjects([]);
       return;
     }
 
@@ -70,10 +72,11 @@ export const FinanceProvider = ({ children }) => {
       const localBudgets = loadFromStorage('finance_budgets', []);
       const localGoals = loadFromStorage('finance_goals', []);
       const localUpcoming = loadFromStorage('finance_upcoming', []);
+      const localProjects = loadFromStorage('finance_projects', []);
       const localCurrency = loadFromStorage('finance_currency', 'INR');
       const localTheme = loadFromStorage('finance_theme', 'light');
 
-      if (localTxs.length || localBudgets.length || localGoals.length || localUpcoming.length) {
+      if (localTxs.length || localBudgets.length || localGoals.length || localUpcoming.length || localProjects.length) {
         const batch = writeBatch(db);
         localTxs.forEach(tx => {
           const { id, ...data } = tx;
@@ -91,6 +94,10 @@ export const FinanceProvider = ({ children }) => {
           const { id, ...data } = u;
           batch.set(doc(userRef('upcoming')), data);
         });
+        localProjects.forEach(p => {
+          const { id, ...data } = p;
+          batch.set(doc(userRef('projects')), data);
+        });
         await batch.commit();
 
         // Save settings
@@ -101,7 +108,7 @@ export const FinanceProvider = ({ children }) => {
 
         // Clear localStorage after migration
         ['finance_transactions','finance_budgets','finance_goals',
-         'finance_upcoming','finance_currency','finance_theme'].forEach(k => localStorage.removeItem(k));
+         'finance_upcoming','finance_projects','finance_currency','finance_theme'].forEach(k => localStorage.removeItem(k));
       }
       localStorage.setItem(migrationKey, '1');
     };
@@ -132,6 +139,9 @@ export const FinanceProvider = ({ children }) => {
     const unsubUpcoming = onSnapshot(userRef('upcoming'), snap =>
       setUpcomingItems(snap.docs.map(d => ({ id: d.id, ...d.data() })))
     );
+    const unsubProjects = onSnapshot(userRef('projects'), snap =>
+      setProjects(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    );
 
     // Run migration after subscriptions are set up
     migrateLocalData().catch(console.error);
@@ -142,6 +152,7 @@ export const FinanceProvider = ({ children }) => {
       unsubBudgets();
       unsubGoals();
       unsubUpcoming();
+      unsubProjects();
     };
   }, [user]);
 
@@ -246,6 +257,20 @@ export const FinanceProvider = ({ children }) => {
     await deleteDoc(doc(db, 'users', user.uid, 'upcoming', id));
   };
 
+  // ── Project CRUD ──
+  const addProject = async (project) => {
+    if (!user) return;
+    await addDoc(collection(db, 'users', user.uid, 'projects'), project);
+  };
+  const updateProject = async (id, updated) => {
+    if (!user) return;
+    await updateDoc(doc(db, 'users', user.uid, 'projects', id), updated);
+  };
+  const deleteProject = async (id) => {
+    if (!user) return;
+    await deleteDoc(doc(db, 'users', user.uid, 'projects', id));
+  };
+
   const clearAllData = async () => {
     if (!user) return;
     const batch = writeBatch(db);
@@ -253,6 +278,7 @@ export const FinanceProvider = ({ children }) => {
     [...budgets].forEach(b => batch.delete(doc(db, 'users', user.uid, 'budgets', b.id)));
     [...goals].forEach(g => batch.delete(doc(db, 'users', user.uid, 'goals', g.id)));
     [...upcomingItems].forEach(u => batch.delete(doc(db, 'users', user.uid, 'upcoming', u.id)));
+    [...projects].forEach(p => batch.delete(doc(db, 'users', user.uid, 'projects', p.id)));
     await batch.commit();
   };
 
@@ -277,7 +303,7 @@ export const FinanceProvider = ({ children }) => {
   return (
     <FinanceContext.Provider value={{
       // Data
-      transactions, filteredTransactions, budgets, goals, upcomingItems,
+      transactions, filteredTransactions, budgets, goals, upcomingItems, projects,
       firestoreLoading,
       // Month navigation
       selectedMonth, selectedMonthLabel, goToPrevMonth, goToNextMonth,
@@ -286,6 +312,7 @@ export const FinanceProvider = ({ children }) => {
       addBudget, updateBudget, deleteBudget,
       addGoal, updateGoal, deleteGoal,
       addUpcoming, markUpcomingReceived, deleteUpcoming,
+      addProject, updateProject, deleteProject,
       clearAllData,
       // Settings
       currency, setCurrency,

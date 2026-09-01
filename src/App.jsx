@@ -6,6 +6,7 @@ import Report from './views/Report';
 import Plan from './views/Plan';
 import Settings from './views/Settings';
 import Login from './views/Login';
+import Projects from './views/Projects';
 import { FinanceProvider } from './context/FinanceContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './App.css';
@@ -46,6 +47,7 @@ const AppRoutes = () => {
             <Route index element={<Home />} />
             <Route path="report" element={<Report />} />
             <Route path="plan" element={<Plan />} />
+            <Route path="projects" element={<Projects />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>
