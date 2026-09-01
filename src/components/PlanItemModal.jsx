@@ -95,17 +95,19 @@ const PlanItemModal = ({ isOpen, onClose, type, itemToEdit }) => {
             />
           </div>
 
-          <div className="form-group">
-            <label className="text-sm font-medium text-muted">Current Saved/Spent ({currencySymbol})</label>
-            <input 
-              type="number" 
-              step="0.01"
-              value={current} 
-              onChange={(e) => setCurrent(e.target.value)}
-              className="form-input"
-              placeholder="0.00"
-            />
-          </div>
+          {type !== 'budget' && (
+            <div className="form-group">
+              <label className="text-sm font-medium text-muted">Current Saved ({currencySymbol})</label>
+              <input 
+                type="number" 
+                step="0.01"
+                value={current} 
+                onChange={(e) => setCurrent(e.target.value)}
+                className="form-input"
+                placeholder="0.00"
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label className="text-sm font-medium text-muted">Color Theme</label>

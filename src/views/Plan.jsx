@@ -5,7 +5,7 @@ import PlanItemModal from '../components/PlanItemModal';
 import './Plan.css';
 
 const Plan = () => {
-  const { budgets, goals, formatAmount } = useFinance();
+  const { budgets, goals, formatAmount, filteredTransactions } = useFinance();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('goal'); // 'goal' or 'budget'
   const [itemToEdit, setItemToEdit] = useState(null);
@@ -85,7 +85,10 @@ const Plan = () => {
 
       <div className="budget-list flex flex-col gap-4">
         {budgets.map(budget => {
-          const percent = Math.min(100, Math.round((budget.current / budget.target) * 100));
+          const currentSpent = filteredTransactions
+            .filter(tx => tx.type === 'expense' && tx.category.toLowerCase() === budget.name.toLowerCase())
+            .reduce((sum, tx) => sum + tx.amount, 0);
+          const percent = Math.min(100, Math.round((currentSpent / budget.target) * 100) || 0);
           return (
             <div 
               key={budget.id} 
@@ -99,7 +102,7 @@ const Plan = () => {
                 </div>
                 <div>
                   <h4 className="font-semibold">{budget.name}</h4>
-                  <span className="text-xs font-bold">{formatAmount(budget.current)} <span className="text-muted font-normal">of {formatAmount(budget.target)}</span></span>
+                  <span className="text-xs font-bold">{formatAmount(currentSpent)} <span className="text-muted font-normal">of {formatAmount(budget.target)}</span></span>
                 </div>
               </div>
               <div className="circular-progress" style={{'--progress': percent, '--color': budget.color}}>
