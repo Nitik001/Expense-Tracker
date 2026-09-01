@@ -41,7 +41,13 @@ const resources = {
         date: 'Date',
         note: 'Note (Optional)',
         expense: 'Expense',
-        income: 'Income'
+        income: 'Income',
+        account: 'Account',
+        cash: 'Cash',
+        bankAccount: 'Bank Account',
+        upi: 'UPI',
+        creditCard: 'Credit Card',
+        wallet: 'Wallet'
       },
       
       report: {
@@ -78,6 +84,36 @@ const resources = {
         goalAchieved: 'Goal Achieved! You did it!',
         goalOnTrack: "Keep saving, you're on track!",
         of: 'of'
+      },
+
+      upcoming: {
+        title: 'Upcoming Money',
+        subtitle: "Track money you're expecting to receive",
+        addIncome: 'Add Expected Income',
+        whatIsIt: 'What is it? (e.g. Salary, Loan)',
+        amount: 'Amount',
+        fromWhom: 'From whom? (e.g. Rahul, Company)',
+        add: 'Add',
+        pending: 'Pending',
+        received: 'Received',
+        sourceNotSet: 'Source not set',
+        due: 'Due',
+        noUpcoming: 'No upcoming income tracked yet',
+        from: 'From'
+      },
+
+      login: {
+        title: 'Finance Tracker',
+        subtitle: 'Sign in to sync your finances across all your devices',
+        or: 'or',
+        name: 'Your Name',
+        email: 'Email',
+        password: 'Password',
+        createAccount: 'Create Account',
+        signIn: 'Sign In',
+        noAccount: "Don't have an account?",
+        haveAccount: 'Already have an account?',
+        createOne: 'Create one'
       },
       
       settings: {
@@ -157,7 +193,13 @@ const resources = {
         date: 'तारीख',
         note: 'नोट (वैकल्पिक)',
         expense: 'खर्च',
-        income: 'आय'
+        income: 'आय',
+        account: 'खाता',
+        cash: 'नकद',
+        bankAccount: 'बैंक खाता',
+        upi: 'UPI',
+        creditCard: 'क्रेडिट कार्ड',
+        wallet: 'वॉलेट'
       },
       
       report: {
@@ -194,6 +236,36 @@ const resources = {
         goalAchieved: 'लक्ष्य प्राप्त हुआ! आपने कर दिखाया!',
         goalOnTrack: "बचत करते रहें, आप सही रास्ते पर हैं!",
         of: 'में से'
+      },
+
+      upcoming: {
+        title: 'आगामी पैसा',
+        subtitle: 'वह पैसा ट्रैक करें जो आपको मिलने वाला है',
+        addIncome: 'आगामी आय जोड़ें',
+        whatIsIt: 'यह क्या है? (जैसे वेतन, ऋण)',
+        amount: 'राशि',
+        fromWhom: 'किससे? (जैसे राहुल, कंपनी)',
+        add: 'जोड़ें',
+        pending: 'लंबित',
+        received: 'प्राप्त हुआ',
+        sourceNotSet: 'स्रोत सेट नहीं है',
+        due: 'देय',
+        noUpcoming: 'अभी तक कोई आगामी आय ट्रैक नहीं की गई',
+        from: 'से'
+      },
+
+      login: {
+        title: 'फ़ाइनेंस ट्रैकर',
+        subtitle: 'अपने सभी उपकरणों में अपने वित्त को सिंक करने के लिए साइन इन करें',
+        or: 'या',
+        name: 'आपका नाम',
+        email: 'ईमेल',
+        password: 'पासवर्ड',
+        createAccount: 'खाता बनाएं',
+        signIn: 'साइन इन करें',
+        noAccount: "क्या आपका खाता नहीं है?",
+        haveAccount: 'क्या आपके पास पहले से खाता है?',
+        createOne: 'एक बनाएं'
       },
       
       settings: {

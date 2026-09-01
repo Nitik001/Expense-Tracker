@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import './Login.css';
 
 const Login = () => {
@@ -10,6 +11,7 @@ const Login = () => {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const handleGoogle = async () => {
     setError('');
@@ -74,8 +76,8 @@ const Login = () => {
               </defs>
             </svg>
           </div>
-          <h1 className="login-title">Finance Tracker</h1>
-          <p className="login-subtitle">Sign in to sync your finances across all your devices</p>
+          <h1 className="login-title">{t('login.title')}</h1>
+          <p className="login-subtitle">{t('login.subtitle')}</p>
         </div>
 
         {/* Google Sign-In */}
@@ -89,13 +91,13 @@ const Login = () => {
           {loading ? 'Signing in…' : 'Continue with Google'}
         </button>
 
-        <div className="login-divider"><span>or</span></div>
+        <div className="login-divider"><span>{t('login.or')}</span></div>
 
         {/* Email/Password Form */}
         <form className="login-form" onSubmit={handleEmailSubmit}>
           {mode === 'signup' && (
             <div className="form-group">
-              <label className="form-label">Your Name</label>
+              <label className="form-label">{t('login.name')}</label>
               <input
                 type="text" value={name} onChange={e => setName(e.target.value)}
                 className="form-input" placeholder="John Doe" required
@@ -103,14 +105,14 @@ const Login = () => {
             </div>
           )}
           <div className="form-group">
-            <label className="form-label">Email</label>
+            <label className="form-label">{t('login.email')}</label>
             <input
               type="email" value={email} onChange={e => setEmail(e.target.value)}
               className="form-input" placeholder="you@example.com" required
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Password</label>
+            <label className="form-label">{t('login.password')}</label>
             <input
               type="password" value={password} onChange={e => setPassword(e.target.value)}
               className="form-input" placeholder="••••••••" required minLength={6}
@@ -120,15 +122,15 @@ const Login = () => {
           {error && <p className="login-error">{error}</p>}
 
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Please wait…' : mode === 'signup' ? 'Create Account' : 'Sign In'}
+            {loading ? 'Please wait…' : mode === 'signup' ? t('login.createAccount') : t('login.signIn')}
           </button>
         </form>
 
         <p className="login-switch">
           {mode === 'signin' ? (
-            <>Don't have an account? <button onClick={() => { setMode('signup'); setError(''); }}>Create one</button></>
+            <>{t('login.noAccount')} <button onClick={() => { setMode('signup'); setError(''); }}>{t('login.createOne')}</button></>
           ) : (
-            <>Already have an account? <button onClick={() => { setMode('signin'); setError(''); }}>Sign in</button></>
+            <>{t('login.haveAccount')} <button onClick={() => { setMode('signin'); setError(''); }}>{t('login.signIn')}</button></>
           )}
         </p>
       </div>

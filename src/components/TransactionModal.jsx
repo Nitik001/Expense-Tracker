@@ -156,13 +156,13 @@ const TransactionModal = () => {
           {/* Account & Date side by side */}
           <div className="flex gap-3">
             <div className="form-group flex-1">
-              <label className="form-label">Account</label>
-              <select value={account} onChange={(e) => setAccount(e.target.value)} className="form-input">
-                <option value="Cash">Cash</option>
-                <option value="Bank Account">Bank Account</option>
-                <option value="UPI">UPI</option>
-                <option value="Credit Card">Credit Card</option>
-                <option value="Wallet">Wallet</option>
+              <label className="form-label">{t('modal.account')}</label>
+              <select className="form-input" value={account} onChange={e => setAccount(e.target.value)}>
+                <option value="Cash">{t('modal.cash')}</option>
+                <option value="Bank Account">{t('modal.bankAccount')}</option>
+                <option value="UPI">{t('modal.upi')}</option>
+                <option value="Credit Card">{t('modal.creditCard')}</option>
+                <option value="Wallet">{t('modal.wallet')}</option>
               </select>
             </div>
             <div className="form-group flex-1">
