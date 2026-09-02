@@ -242,6 +242,17 @@ export const FinanceProvider = ({ children }) => {
     }, 5000);
   };
 
+  const bulkAddTransactions = async (txList) => {
+    if (!user || !txList.length) return;
+    const batch = writeBatch(db);
+    txList.forEach(tx => {
+      const ref = doc(collection(db, 'users', user.uid, 'transactions'));
+      batch.set(ref, tx);
+    });
+    await batch.commit();
+    return txList.length;
+  };
+
   // ── Budget CRUD ──
   const addBudget = async (budget) => {
     if (!user) return;
@@ -336,7 +347,7 @@ export const FinanceProvider = ({ children }) => {
       // Month navigation
       selectedMonth, selectedMonthLabel, goToPrevMonth, goToNextMonth,
       // CRUD
-      addTransaction, updateTransaction, deleteTransaction,
+      addTransaction, updateTransaction, deleteTransaction, bulkAddTransactions,
       addBudget, updateBudget, deleteBudget,
       addGoal, updateGoal, deleteGoal,
       addUpcoming, markUpcomingReceived, deleteUpcoming,

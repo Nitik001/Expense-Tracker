@@ -1,14 +1,16 @@
-import React from 'react';
-import { ChevronLeft, Moon, Sun, IndianRupee, Database, ChevronRight, AlertTriangle, Palette, LogOut, User, Globe } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronLeft, Moon, Sun, IndianRupee, Database, ChevronRight, AlertTriangle, Palette, LogOut, User, Globe, FileSpreadsheet } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useFinance } from '../context/FinanceContext';
 import { useAuth } from '../context/AuthContext';
+import ImportModal from '../components/ImportModal';
 import './Settings.css';
 
 const Settings = () => {
   const { currency, setCurrency, clearAllData, theme, toggleTheme } = useFinance();
   const { user, signOut } = useAuth();
   const { t, i18n } = useTranslation();
+  const [importOpen, setImportOpen] = useState(false);
 
   const handleLanguageChange = (e) => {
     const newLang = e.target.value;
@@ -151,6 +153,25 @@ const Settings = () => {
         </div>
       </div>
 
+      {/* ── Import Bank Statement ── */}
+      <div className="settings-section mt-6">
+        <h3 className="section-label">Import Data</h3>
+        <div className="settings-card">
+          <div className="settings-item flex justify-between items-center" onClick={() => setImportOpen(true)} style={{ cursor: 'pointer' }}>
+            <div className="flex items-center gap-3">
+              <div className="setting-icon" style={{ backgroundColor: 'rgba(157, 125, 242, 0.12)', color: '#9d7df2' }}>
+                <FileSpreadsheet size={20} />
+              </div>
+              <div>
+                <span className="font-semibold">Import Bank Statement</span>
+                <p className="text-xs text-muted">Upload CSV/Excel from any bank</p>
+              </div>
+            </div>
+            <ChevronRight size={16} color="var(--color-text-muted)" />
+          </div>
+        </div>
+      </div>
+
       {/* ── Danger Zone ── */}
       <div className="settings-section mt-6">
         <h3 className="section-label">{t('settings.dataManagement')}</h3>
@@ -186,6 +207,8 @@ const Settings = () => {
           </div>
         </div>
       </div>
+
+      <ImportModal isOpen={importOpen} onClose={() => setImportOpen(false)} />
     </div>
   );
 };
