@@ -34,6 +34,12 @@
   z-index: 1;
 }
 
+@media (min-width: 768px) {
+  .home-header {
+    padding: 50px 60px 100px 60px;
+  }
+}
+
 .header-top {
   margin-bottom: 30px;
 }
@@ -93,6 +99,16 @@
   margin-top: -40px;
   position: relative;
   z-index: 2;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  .home-content {
+    padding: 0 40px;
+    margin-top: -60px;
+  }
 }
 
 .info-icon {
@@ -219,3 +235,16 @@
   gap: 4px;
 }
 
+@media (min-width: 768px) {
+  .money-cards {
+    gap: 24px;
+  }
+
+  .money-card {
+    padding: 24px;
+  }
+
+  .transaction-item {
+    padding: 18px 24px;
+  }
+}

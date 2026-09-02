@@ -3,4 +3,13 @@
   padding-bottom: 90px;
   min-height: 100%;
   background: var(--color-background);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .projects-view {
+    padding: 40px;
+    padding-bottom: 90px;
+  }
 }

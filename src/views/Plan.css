@@ -1,6 +1,14 @@
 .plan-view {
   padding: 40px 20px 20px 20px;
   min-height: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .plan-view {
+    padding: 40px;
+  }
 }
 
 .icon-btn-solid {
